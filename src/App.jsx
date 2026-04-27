@@ -10,8 +10,9 @@ import AnnuncioDettaglio from './pages/AnnuncioDettaglio';
 function App() {
   const { isAuthenticated, loading } = useAuth();
 
-  // Questa è la pagina verde che vedi per un secondo
-  if (loading) {
+  // Mostriamo la schermata di loading solo se c'e' una sessione autenticata in corso di verifica.
+  // Se non autenticato, forziamo subito il Login per evitare schermate bloccate dopo il logout.
+  if (loading && isAuthenticated) {
     return (
       <div style={{ 
         display: 'flex', 
@@ -30,15 +31,20 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Se non sono loggato vado a Login, altrimenti Dashboard */}
-        <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/dashboard" />} />
-        <Route path="/dashboard" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} />
-        
-        {/* Pagina dettaglio annuncio */}
-        <Route path="/annuncio/:id" element={<AnnuncioDettaglio />} />
-
-        {/* Rotta di emergenza: se l'indirizzo è sbagliato rimanda al Login */}
-        <Route path="*" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} />} />
+        {/* Quando non autenticato, qualsiasi URL deve portare al Login */}
+        {!isAuthenticated ? (
+          <>
+            <Route path="/login" element={<Login />} />
+            <Route path="*" element={<Navigate to="/login" replace />} />
+          </>
+        ) : (
+          <>
+            <Route path="/login" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/annuncio/:id" element={<AnnuncioDettaglio />} />
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </>
+        )}
       </Routes>
     </Router>
   );
