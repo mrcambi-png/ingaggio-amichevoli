@@ -6,25 +6,36 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [caricamento, setCaricamento] = useState(false);
   
-  const { login } = useAuth(); // Usiamo la funzione 'login' dal nostro hook
+  // Prendiamo login e error dal nostro hook
+  const { login, error } = useAuth(); 
 
-  const handleLogin = async () => {
+  const handleLogin = async (e) => {
+    // Impediamo alla pagina di ricaricarsi (molto importante!)
+    if (e) e.preventDefault();
+    
+    if (!email || !password) {
+      alert("Per favore, inserisci sia l'email che la password");
+      return;
+    }
+
     setCaricamento(true);
     console.log("Tentativo di accesso per:", email);
 
     try {
+      // Usiamo la funzione login che abbiamo sistemato nel motore
       const result = await login(email, password);
       
-      if (result.success) {
+      if (result && result.success) {
         console.log("Accesso riuscito!");
-        // Nessun navigate manuale: App.jsx reindirizza automaticamente a /dashboard
-        // quando isAuthenticated diventa true.
+        // App.jsx si accorgerà del cambio e ti manderà in Dashboard
       } else {
-        alert("Ops! Qualcosa è andato storto: " + (result.error || "Controlla i dati"));
+        // Se c'è un errore specifico da Supabase lo mostriamo
+        const messaggioErrore = result?.error || "Credenziali non valide. Riprova.";
+        alert("Ops! " + messaggioErrore);
       }
-
     } catch (err) {
-      console.error("Errore tecnico:", err);
+      console.error("Errore tecnico durante il login:", err);
+      alert("Errore di connessione. Riprova tra poco.");
     } finally {
       setCaricamento(false);
     }
@@ -36,82 +47,85 @@ export default function Login() {
       flexDirection: 'column', 
       alignItems: 'center', 
       justifyContent: 'center', 
-      height: '100vh', 
-      backgroundColor: '#f8f9fa',
+      minHeight: '100vh', 
+      backgroundColor: '#1a7a3c', // Messo lo sfondo verde come da tuo desiderio
       fontFamily: 'sans-serif'
     }}>
-      {/* LOGO PIÙ GRANDE */}
+      {/* LOGO - Percorso diretto per la cartella public */}
       <img
-        src={`${import.meta.env.BASE_URL}logo-ingaggio.png`}
+        src="/logo-ingaggio.png"
         alt="Logo"
-        style={{ height: '120px', marginBottom: '20px' }}
+        style={{ height: '150px', marginBottom: '30px' }}
       />
       
       <div style={{ 
         background: 'white', 
         padding: '40px', 
-        borderRadius: '20px', 
-        boxShadow: '0 10px 25px rgba(0,0,0,0.1)', 
-        width: '350px' 
+        borderRadius: '24px', 
+        boxShadow: '0 20px 25px rgba(0,0,0,0.2)', 
+        width: '90%',
+        maxWidth: '380px'
       }}>
-        <h2 style={{ color: '#1a7a3c', textAlign: 'center', marginBottom: '30px' }}>Entra in Campo</h2>
+        <h2 style={{ color: '#1a7a3c', textAlign: 'center', marginBottom: '30px', fontWeight: '800' }}>
+          Entra in Campo
+        </h2>
         
-        {/* Usiamo il tag <form> così il tasto INVIO del PC funziona in automatico! */}
-        <form style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        {/* Form con onSubmit: così funziona anche premendo INVIO sulla tastiera */}
+        <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-            <label style={{ fontSize: '0.8rem', color: '#666', fontWeight: 'bold' }}>Email</label>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <label style={{ fontSize: '0.9rem', color: '#4b5563', fontWeight: 'bold' }}>Email</label>
             <input 
               type="email" 
               placeholder="Inserisci la tua email" 
               value={email} 
               onChange={(e) => setEmail(e.target.value)} 
-              style={{ padding: '12px', borderRadius: '8px', border: '1px solid #ddd', outlineColor: '#1a7a3c' }} 
+              style={{ padding: '14px', borderRadius: '12px', border: '1px solid #d1d5db', fontSize: '1rem' }} 
               required 
             />
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-            <label style={{ fontSize: '0.8rem', color: '#666', fontWeight: 'bold' }}>Password</label>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <label style={{ fontSize: '0.9rem', color: '#4b5563', fontWeight: 'bold' }}>Password</label>
             <input 
               type="password" 
               placeholder="Inserisci la password" 
               value={password} 
               onChange={(e) => setPassword(e.target.value)} 
-              style={{ padding: '12px', borderRadius: '8px', border: '1px solid #ddd', outlineColor: '#1a7a3c' }} 
+              style={{ padding: '14px', borderRadius: '12px', border: '1px solid #d1d5db', fontSize: '1rem' }} 
               required 
             />
           </div>
 
           <button 
-            type="button" 
-            onClick={handleLogin}
+            type="submit" 
             disabled={caricamento}
             style={{ 
-              padding: '14px', 
+              padding: '16px', 
               backgroundColor: '#1a7a3c', 
               color: 'white', 
               border: 'none', 
-              borderRadius: '8px', 
+              borderRadius: '12px', 
               fontWeight: 'bold', 
-              fontSize: '1rem',
-              cursor: 'pointer',
+              fontSize: '1.1rem',
+              cursor: caricamento ? 'not-allowed' : 'pointer',
               marginTop: '10px',
-              transition: 'background 0.3s'
+              transition: 'all 0.3s ease',
+              opacity: caricamento ? 0.7 : 1
             }}
           >
-            {caricamento ? 'ENTRATA IN CORSO...' : 'LOGIN'}
+            {caricamento ? 'FISCHIO D\'INIZIO...' : 'LOGIN'}
           </button>
         </form>
       </div>
       
-      <p style={{ marginTop: '20px', color: '#666', fontSize: '0.9rem' }}>
+      <p style={{ marginTop: '25px', color: 'white', fontSize: '1rem' }}>
         Non hai un account?{' '}
         <a
           href="https://ingaggio.com/"
           target="_blank"
           rel="noreferrer"
-          style={{ color: '#1a7a3c', fontWeight: 'bold', cursor: 'pointer' }}
+          style={{ color: 'white', fontWeight: 'bold', textDecoration: 'underline' }}
         >
           Registrati
         </a>
