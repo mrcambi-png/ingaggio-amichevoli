@@ -1,48 +1,38 @@
-import { Link, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
-import ListaAnnunci from './components/ListaAnnunci'
-import PubblicaAnnuncio from './components/PubblicaAnnuncio'
-import AnnuncioDettaglio from './pages/AnnuncioDettaglio'
-import './App.css'
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useAuth } from './hooks/useAuth';
+import Dashboard from './pages/Dashboard';
+import Login from './pages/Login';
+import AnnuncioDettaglio from './pages/AnnuncioDettaglio'; // AGGIUNTO QUESTO
 
-export default function App() {
-  const navigate = useNavigate()
-  const location = useLocation()
+function App() {
+  const { isAuthenticated, loading } = useAuth();
 
-  const dopoPublicazione = () => {
-    navigate('/')
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#1a7a3c', color: 'white' }}>
+        Fischio d'inizio... ⚽
+      </div>
+    );
   }
 
-  const onLista = location.pathname === '/'
-  const onPubblica = location.pathname === '/pubblica'
-
   return (
-    <div className="app">
-      <header className="header">
-        <span className="logo">ingaggio.</span>
-        <nav>
-          <Link
-            className={onLista ? 'nav-btn attivo' : 'nav-btn'}
-            to="/"
-          >
-            Annunci
-          </Link>
-          <Link
-            className={onPubblica ? 'nav-btn attivo' : 'nav-btn'}
-            to="/pubblica"
-          >
-            + Pubblica
-          </Link>
-        </nav>
-      </header>
-
-      <main className="main">
-        <Routes>
-          <Route path="/" element={<ListaAnnunci />} />
-          <Route path="/pubblica" element={<PubblicaAnnuncio onSuccess={dopoPublicazione} />} />
-          <Route path="/annuncio/:id" element={<AnnuncioDettaglio />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </main>
-    </div>
-  )
+    <Router>
+      <Routes>
+        {/* Pagina di Login */}
+        <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/dashboard" />} />
+        
+        {/* Pagina Dashboard (Protetta) */}
+        <Route path="/dashboard" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} />
+        
+        {/* NUOVA PAGINA DETTAGLIO */}
+        <Route path="/annuncio/:id" element={<AnnuncioDettaglio />} />
+        
+        {/* Rotta di default */}
+        <Route path="*" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} />} />
+      </Routes>
+    </Router>
+  );
 }
+
+export default App;

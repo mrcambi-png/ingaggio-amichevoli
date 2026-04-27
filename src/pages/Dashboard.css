@@ -1,0 +1,130 @@
+/* Reset e Layout */
+.dashboard-wrapper {
+    min-height: 100vh;
+    background-color: #f8f9fa;
+    font-family: sans-serif;
+  }
+  
+  /* HEADER - Qui sistemiamo le dimensioni */
+  .main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: white;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  }
+  
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Spazio tra logo e scritta */
+  }
+  
+  /* ECCO IL TRUCCO PER IL LOGO */
+  .header-logo {
+    height: 60px; /* Altezza massima del logo */
+    width: auto;  /* Si restringe in proporzione */
+  }
+  
+  .brand-name {
+    color: #1a7a3c;
+    font-size: 1.8rem;
+    font-weight: 900;
+    margin: 0;
+  }
+  
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  
+  .user-info-mini {
+    text-align: right;
+  }
+  
+  .user-name-top {
+    display: block;
+    font-weight: bold;
+    font-size: 0.9rem;
+  }
+  
+  .user-tag {
+    font-size: 0.75rem;
+    color: #666;
+  }
+  
+  .btn-logout {
+    background: white;
+    border: 1px solid #ccc;
+    padding: 8px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  
+  .btn-logout:hover {
+    background-color: #f0f0f0;
+  }
+  
+  /* CONTENUTI */
+  .dashboard-welcome {
+    padding: 50px 20px;
+    text-align: center;
+  }
+  
+  .welcome-text {
+    font-size: 2.2rem;
+    color: #333;
+  }
+  
+  .bacheca-placeholder {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    text-align: center;
+  }
+  
+  /* ANIMAZIONE FRECCIA */
+  .bacheca-arrow {
+    font-size: 40px;
+    color: #1a7a3c;
+    margin: 15px 0;
+    animation: bounce 2s infinite;
+  }
+  
+  @keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+    40% {transform: translateY(-15px);}
+    60% {transform: translateY(-7px);}
+  }
+  
+  .loader-bar {
+    width: 120px;
+    height: 6px;
+    background: #eee;
+    margin: 20px auto;
+    border-radius: 3px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .loader-bar::after {
+    content: '';
+    position: absolute;
+    left: -50px;
+    width: 50px;
+    height: 100%;
+    background: #1a7a3c;
+    animation: loading 1.5s infinite;
+  }
+  
+  @keyframes loading {
+    0% { left: -50px; }
+    100% { left: 120px; }
+  }
+  
