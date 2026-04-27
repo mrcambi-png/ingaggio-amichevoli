@@ -6,31 +6,37 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [caricamento, setCaricamento] = useState(false);
   
-  // Prendiamo login o signIn dal motore (così siamo sicuri che funzioni)
-  const { login, signIn } = useAuth(); 
-  const loginFunction = login || signIn;
+  // Recuperiamo le funzioni dal motore useAuth
+  const auth = useAuth(); 
 
   const handleLogin = async (e) => {
     if (e) e.preventDefault();
     
+    // DIAGNOSTICA: Se il motore è rotto, ce lo dice subito
+    if (!auth.login && !auth.signIn) {
+      alert("ERRORE TECNICO: Il motore di login non è collegato correttamente. Controlla useAuth.js");
+      return;
+    }
+
     if (!email || !password) {
-      alert("Inserisci email e password per entrare in campo!");
+      alert("Mancano i dati: inserisci email e password.");
       return;
     }
 
     setCaricamento(true);
-    
+    const loginFunction = auth.login || auth.signIn;
+
     try {
       const result = await loginFunction(email, password);
       
       if (result && result.success) {
-        console.log("Login effettuato con successo!");
+        console.log("Accesso riuscito!");
+        // Il reindirizzamento avviene automaticamente in App.jsx
       } else {
-        alert("Ops! " + (result?.error || "Credenziali non valide"));
+        alert("ACCESSO NEGATO: " + (result?.error || "Credenziali errate o utente non confermato."));
       }
     } catch (err) {
-      alert("Errore tecnico. Controlla la tua connessione.");
-      console.error(err);
+      alert("ERRORE DI CONNESSIONE: " + err.message);
     } finally {
       setCaricamento(false);
     }
@@ -38,35 +44,21 @@ export default function Login() {
 
   return (
     <div style={{ 
-      display: 'flex', 
-      flexDirection: 'column', 
-      alignItems: 'center', 
-      justifyContent: 'center', 
-      height: '100vh', 
-      backgroundColor: '#f8f9fa', // GRIGIO CHIARO COME PRIMA
-      fontFamily: 'sans-serif'
+      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', 
+      height: '100vh', backgroundColor: '#f8f9fa', fontFamily: 'sans-serif' 
     }}>
       
-      {/* LOGO PIÙ GRANDE E STACCATO */}
-      <img
-        src="/logo-ingaggio.png"
-        alt="Logo"
-        style={{ height: '140px', marginBottom: '30px' }}
-      />
+      <img src="/logo-ingaggio.png" alt="Logo" style={{ height: '140px', marginBottom: '30px' }} />
       
       <div style={{ 
-        background: 'white', 
-        padding: '40px', 
-        borderRadius: '20px', 
-        boxShadow: '0 10px 25px rgba(0,0,0,0.1)', 
-        width: '350px' 
+        background: 'white', padding: '40px', borderRadius: '20px', 
+        boxShadow: '0 10px 25px rgba(0,0,0,0.1)', width: '350px' 
       }}>
         <h2 style={{ color: '#1a7a3c', textAlign: 'center', marginBottom: '30px', fontWeight: 'bold' }}>
             Entra in Campo
         </h2>
         
         <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          
           <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
             <label style={{ fontSize: '0.8rem', color: '#666', fontWeight: 'bold' }}>Email</label>
             <input 
@@ -74,7 +66,7 @@ export default function Login() {
               placeholder="Inserisci la tua email" 
               value={email} 
               onChange={(e) => setEmail(e.target.value)} 
-              style={{ padding: '12px', borderRadius: '8px', border: '1px solid #ddd', outlineColor: '#1a7a3c' }} 
+              style={{ padding: '12px', borderRadius: '8px', border: '1px solid #ddd' }} 
               required 
             />
           </div>
@@ -86,7 +78,7 @@ export default function Login() {
               placeholder="Inserisci la password" 
               value={password} 
               onChange={(e) => setPassword(e.target.value)} 
-              style={{ padding: '12px', borderRadius: '8px', border: '1px solid #ddd', outlineColor: '#1a7a3c' }} 
+              style={{ padding: '12px', borderRadius: '8px', border: '1px solid #ddd' }} 
               required 
             />
           </div>
@@ -95,33 +87,18 @@ export default function Login() {
             type="submit" 
             disabled={caricamento}
             style={{ 
-              padding: '14px', 
-              backgroundColor: '#1a7a3c', 
-              color: 'white', 
-              border: 'none', 
-              borderRadius: '8px', 
-              fontWeight: 'bold', 
-              fontSize: '1rem',
-              cursor: 'pointer',
-              marginTop: '10px',
-              transition: 'background 0.3s'
+              padding: '14px', backgroundColor: '#1a7a3c', color: white, border: 'none', 
+              borderRadius: '8px', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer' 
             }}
           >
-            {caricamento ? 'ENTRATA IN CORSO...' : 'LOGIN'}
+            {caricamento ? 'FISCHIO D\'INIZIO...' : 'LOGIN'}
           </button>
         </form>
       </div>
       
       <p style={{ marginTop: '25px', color: '#666', fontSize: '0.9rem' }}>
-        Non hai un account?{' '}
-        <a
-          href="https://ingaggio.com"
-          target="_blank"
-          rel="noreferrer"
-          style={{ color: '#1a7a3c', fontWeight: 'bold', textDecoration: 'none' }}
-        >
-          Registrati
-        </a>
+        Non hai un account? <a href="https://ingaggio.com" target="_blank" rel="noreferrer" 
+        style={{ color: '#1a7a3c', fontWeight: 'bold', textDecoration: 'none' }}>Registrati</a>
       </p>
     </div>
   );
