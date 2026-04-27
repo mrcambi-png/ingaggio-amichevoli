@@ -1,40 +1,47 @@
-import { useState } from 'react'
+import { Link, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import ListaAnnunci from './components/ListaAnnunci'
 import PubblicaAnnuncio from './components/PubblicaAnnuncio'
+import AnnuncioDettaglio from './pages/AnnuncioDettaglio'
 import './App.css'
 
 export default function App() {
-  const [pagina, setPagina] = useState('lista')
-  const [aggiorna, setAggiorna] = useState(0)
+  const navigate = useNavigate()
+  const location = useLocation()
 
   const dopoPublicazione = () => {
-    setAggiorna(a => a + 1)
-    setPagina('lista')
+    navigate('/')
   }
+
+  const onLista = location.pathname === '/'
+  const onPubblica = location.pathname === '/pubblica'
 
   return (
     <div className="app">
       <header className="header">
         <span className="logo">ingaggio.</span>
         <nav>
-          <button
-            className={pagina === 'lista' ? 'nav-btn attivo' : 'nav-btn'}
-            onClick={() => setPagina('lista')}
+          <Link
+            className={onLista ? 'nav-btn attivo' : 'nav-btn'}
+            to="/"
           >
             Annunci
-          </button>
-          <button
-            className={pagina === 'pubblica' ? 'nav-btn attivo' : 'nav-btn'}
-            onClick={() => setPagina('pubblica')}
+          </Link>
+          <Link
+            className={onPubblica ? 'nav-btn attivo' : 'nav-btn'}
+            to="/pubblica"
           >
             + Pubblica
-          </button>
+          </Link>
         </nav>
       </header>
 
       <main className="main">
-        {pagina === 'lista' && <ListaAnnunci key={aggiorna} />}
-        {pagina === 'pubblica' && <PubblicaAnnuncio onSuccess={dopoPublicazione} />}
+        <Routes>
+          <Route path="/" element={<ListaAnnunci />} />
+          <Route path="/pubblica" element={<PubblicaAnnuncio onSuccess={dopoPublicazione} />} />
+          <Route path="/annuncio/:id" element={<AnnuncioDettaglio />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </main>
     </div>
   )
