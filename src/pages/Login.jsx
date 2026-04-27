@@ -1,15 +1,20 @@
 import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [caricamento, setCaricamento] = useState(false);
+  const [erroreLogin, setErroreLogin] = useState('');
   
   const { login } = useAuth();
+  const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
-    if (e) e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (caricamento) return;
+    setErroreLogin('');
 
     if (!email || !password) {
       alert("Mancano i dati: inserisci email e password.");
@@ -22,12 +27,16 @@ export default function Login() {
       const result = await login(email, password);
       
       if (result && result.success) {
-        console.log("Accesso riuscito!");
-        // Il reindirizzamento avviene automaticamente in App.jsx
+        navigate('/dashboard', { replace: true });
       } else {
-        alert("ACCESSO NEGATO: " + (result?.error || "Credenziali errate o utente non confermato."));
+        const messaggioErrore = result?.error || "Credenziali errate o utente non confermato.";
+        console.error('Errore login:', messaggioErrore);
+        setErroreLogin(messaggioErrore);
+        alert("ACCESSO NEGATO: " + messaggioErrore);
       }
     } catch (err) {
+      console.error("ERRORE DI CONNESSIONE:", err);
+      setErroreLogin(err.message || 'Errore di connessione');
       alert("ERRORE DI CONNESSIONE: " + err.message);
     } finally {
       setCaricamento(false);
@@ -50,7 +59,7 @@ export default function Login() {
             Entra in Campo
         </h2>
         
-        <form onSubmit={(e) => e.preventDefault()} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
             <label style={{ fontSize: '0.8rem', color: '#666', fontWeight: 'bold' }}>Email</label>
             <input 
@@ -76,16 +85,21 @@ export default function Login() {
           </div>
 
           <button 
-            type="button" 
-            onClick={handleLogin}
+            type="submit"
             disabled={caricamento}
             style={{ 
               padding: '14px', backgroundColor: '#1a7a3c', color: 'white', border: 'none', 
-              borderRadius: '8px', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer' 
+              borderRadius: '8px', fontWeight: 'bold', fontSize: '1rem', cursor: caricamento ? 'not-allowed' : 'pointer',
+              opacity: caricamento ? 0.85 : 1
             }}
           >
             {caricamento ? 'FISCHIO D\'INIZIO...' : 'LOGIN'}
           </button>
+          {erroreLogin && (
+            <p style={{ color: '#c62828', fontSize: '0.85rem', margin: 0 }}>
+              {erroreLogin}
+            </p>
+          )}
         </form>
       </div>
       
