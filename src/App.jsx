@@ -1,17 +1,28 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
+
+// Importiamo le pagine - CONTROLLA CHE I NOMI SIANO ESATTAMENTE QUESTI NELLA CARTELLA PAGES
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
-import AnnuncioDettaglio from './pages/AnnuncioDettaglio'; // AGGIUNTO QUESTO
+import AnnuncioDettaglio from './pages/AnnuncioDettaglio';
 
 function App() {
   const { isAuthenticated, loading } = useAuth();
 
+  // Questa è la pagina verde che vedi per un secondo
   if (loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#1a7a3c', color: 'white' }}>
-        Fischio d'inizio... ⚽
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh', 
+        backgroundColor: '#1a7a3c', 
+        color: 'white',
+        fontFamily: 'sans-serif'
+      }}>
+        <h1>Fischio d'inizio... ⚽</h1>
       </div>
     );
   }
@@ -19,16 +30,14 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Pagina di Login */}
+        {/* Se non sono loggato vado a Login, altrimenti Dashboard */}
         <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/dashboard" />} />
-        
-        {/* Pagina Dashboard (Protetta) */}
         <Route path="/dashboard" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} />
         
-        {/* NUOVA PAGINA DETTAGLIO */}
+        {/* Pagina dettaglio annuncio */}
         <Route path="/annuncio/:id" element={<AnnuncioDettaglio />} />
-        
-        {/* Rotta di default */}
+
+        {/* Rotta di emergenza: se l'indirizzo è sbagliato rimanda al Login */}
         <Route path="*" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} />} />
       </Routes>
     </Router>

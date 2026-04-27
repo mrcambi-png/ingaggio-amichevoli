@@ -1,123 +1,81 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import {
-  getCurrentSession,
-  getCurrentUser,
-  getProfileByUserId,
-  login,
-  logout,
-  onAuthStateChange,
-  register,
-  upsertProfile,
-} from '../services/authService'
+import { useState, useEffect, useCallback } from 'react';
+import { authService } from '../services/authService';
 
-export function useAuth() {
-  const [session, setSession] = useState(null)
-  const [user, setUser] = useState(null)
-  const [profile, setProfile] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+export const useAuth = () => {
+  const [user, setUser] = useState(null);
+  const [profilo, setProfilo] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const loadAuthState = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-
-    try {
-      const currentSession = await getCurrentSession()
-      setSession(currentSession)
-
-      const currentUser = currentSession?.user || (await getCurrentUser())
-      setUser(currentUser || null)
-
-      if (currentUser?.id) {
-        const currentProfile = await getProfileByUserId(currentUser.id)
-        setProfile(currentProfile)
-      } else {
-        setProfile(null)
-      }
-    } catch (authError) {
-      setError(authError)
-      setSession(null)
-      setUser(null)
-      setProfile(null)
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  const signIn = useCallback(
-    async (credentials) => {
-      setError(null)
-      await login(credentials)
-      await loadAuthState()
-    },
-    [loadAuthState],
-  )
-
-  const signUp = useCallback(
-    async (payload) => {
-      setError(null)
-      await register(payload)
-      await loadAuthState()
-    },
-    [loadAuthState],
-  )
-
-  const signOut = useCallback(async () => {
-    setError(null)
-    await logout()
-    setSession(null)
-    setUser(null)
-    setProfile(null)
-  }, [])
-
-  const saveProfile = useCallback(
-    async (profilePatch) => {
-      if (!user?.id) return null
-      const updated = await upsertProfile({ userId: user.id, profile: profilePatch })
-      setProfile(updated)
-      return updated
-    },
-    [user?.id],
-  )
-
+  // 1. Carica la sessione all'inizio (Fischio d'inizio)
   useEffect(() => {
-    loadAuthState()
-
-    const {
-      data: { subscription },
-    } = onAuthStateChange(async (_event, currentSession) => {
-      setSession(currentSession)
-      const currentUser = currentSession?.user || null
-      setUser(currentUser)
-
-      if (currentUser?.id) {
-        const currentProfile = await getProfileByUserId(currentUser.id)
-        setProfile(currentProfile)
-      } else {
-        setProfile(null)
+    const caricaSessione = async () => {
+      setLoading(true);
+      try {
+        const sessione = await authService.getSessione();
+        if (sessione) {
+          setUser(sessione.user);
+          setProfilo(sessione.profilo);
+        }
+      } catch (err) {
+        console.error("Errore sessione:", err);
+      } finally {
+        setLoading(false);
       }
+    };
+    caricaSessione();
+  }, []);
 
-      setLoading(false)
-    })
+  // 2. Funzione per entrare (Login)
+    const login = useCallback(async (email, password) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await authService.signIn(email, password);
 
-    return () => subscription.unsubscribe()
-  }, [loadAuthState])
+      if (result.success) {
+        setUser(result.user);
+        setProfilo(result.profilo);
+        setLoading(false);
+        return result; // <--- FONDAMENTALE: restituisce il successo al componente Login
+      } else {
+        setError(result.error);
+        setLoading(false);
+        return result; // <--- Restituisce l'errore
+      }
+    } catch (err) {
+      setLoading(false);
+      return { success: false, error: err.message };
+    }
+  }, []);
 
-  return useMemo(
-    () => ({
-      session,
-      user,
-      profile,
-      role: profile?.role || null,
-      isAuthenticated: Boolean(user),
-      loading,
-      error,
-      signIn,
-      signUp,
-      signOut,
-      refreshAuth: loadAuthState,
-      saveProfile,
-    }),
-    [session, user, profile, loading, error, signIn, signUp, signOut, loadAuthState, saveProfile],
-  )
-}
+  // 3. Funzione per uscire (D'ora in poi si chiama signOut per tutti!)
+  const signOut = useCallback(async () => {
+    setLoading(true);
+    try {
+      const result = await authService.signOut();
+      if (result.success) {
+        // RESET TOTALE: Svuotiamo tutto
+        setUser(null);
+        setProfilo(null);
+        setError(null);
+      }
+      return result;
+    } catch (err) {
+      console.error("Errore durante il logout:", err);
+      return { success: false, error: err.message };
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return {
+    user,
+    profilo,
+    loading,
+    error,
+    login,
+    signOut, // <--- ADESSO SI CHIAMA SIGN-OUT, PROPRIO COME NELLA DASHBOARD!
+    isAuthenticated: !!user
+  };
+};

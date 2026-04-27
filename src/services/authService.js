@@ -1,106 +1,242 @@
-import { supabase } from '../supabaseClient'
+import { supabase } from '../supabaseClient';
 
-const PROFILES_TABLE = 'profiles'
+export const authService = {
+  async signUp(email, password, tipoUtente, datiProfilo) {
+    try {
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            tipo_utente: tipoUtente
+          }
+        }
+      });
 
-const normalizeRole = (role) => {
-  if (!role) return null
+      if (authError) throw authError;
 
-  const value = String(role).toLowerCase()
-  if (value === 'calciatore') return 'calciatore'
-  if (value === 'societa' || value === 'società') return 'societa'
-  return value
-}
+      const userId = authData.user.id;
 
-const mapProfile = (profile) => {
-  if (!profile) return null
-  return {
-    ...profile,
-    role: normalizeRole(profile.role || profile.tipo || profile.tipo_utente),
+      const { data: profiloBase, error: profiloBaseError } = await supabase
+        .from('profili_utenti')
+        .insert([{
+          id: userId,
+          email,
+          tipo_utente: tipoUtente
+        }])
+        .select();
+
+      if (profiloBaseError) throw profiloBaseError;
+
+      let profiloSpecifico;
+
+      if (tipoUtente === 'calciatore') {
+        const { data, error } = await supabase
+          .from('profili_calciatori')
+          .insert([{
+            utente_id: userId,
+            email,
+            nome: datiProfilo.nome || '',
+            cognome: datiProfilo.cognome || '',
+            ruolo: datiProfilo.ruolo || 'Attaccante',
+            categoria_figc: datiProfilo.categoria_figc || 'Dilettante',
+            // NUOVO: Categoria Giovanile per il calciatore
+            categoria_figc_giovanile: datiProfilo.categoria_figc_giovanile || 'Pulcini 1° anno',
+            municipio_num: datiProfilo.municipio_num || 'I'
+          }])
+          .select();
+
+        if (error) throw error;
+        profiloSpecifico = data[0];
+
+      } else if (tipoUtente === 'societa') {
+        const { data, error } = await supabase
+          .from('profili_societa')
+          .insert([{
+            utente_id: userId,
+            email,
+            nome_asd: datiProfilo.nome_asd || '',
+            categoria_figc: datiProfilo.categoria_figc || 'Dilettante',
+            // NUOVO: Anche la società può avere una categoria giovanile predefinita
+            categoria_figc_giovanile: datiProfilo.categoria_figc_giovanile || 'Pulcini 1° anno',
+            municipio_num: datiProfilo.municipio_num || 'I',
+            indirizzo: datiProfilo.indirizzo || '',
+            civico: datiProfilo.civico || ''
+          }])
+          .select();
+
+        if (error) throw error;
+        profiloSpecifico = data[0];
+
+      } else if (tipoUtente === 'staff') {
+        const { data, error } = await supabase
+          .from('profili_staff')
+          .insert([{
+            utente_id: userId,
+            email,
+            nome: datiProfilo.nome || '',
+            cognome: datiProfilo.cognome || '',
+            specializzazione: datiProfilo.specializzazione || 'Allenatore',
+            municipio_num: datiProfilo.municipio_num || 'I'
+          }])
+          .select();
+
+        if (error) throw error;
+        profiloSpecifico = data[0];
+      }
+
+      return {
+        success: true,
+        user: authData.user,
+        profilo: profiloSpecifico,
+        message: 'Registrazione completata. Controlla email per confermare.'
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  },
+
+   async signIn(email, password) {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+      if (error) throw error;
+      
+      const profilo = await this.caricaProfilo(data.user.id);
+      
+      return {
+        success: true, // <--- Se manca questo, il tasto non saprà mai che è andata bene!
+        user: data.user,
+        profilo,
+        message: 'Login completato'
+      };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  },
+
+  async caricaProfilo(userId) {
+    try {
+      const { data: tipoData, error: tipoError } = await supabase
+        .from('profili_utenti')
+        .select('tipo_utente')
+        .eq('id', userId)
+        .single();
+
+      if (tipoError) throw tipoError;
+      const tipoUtente = tipoData.tipo_utente;
+
+      let table;
+      if (tipoUtente === 'calciatore') {
+        table = 'profili_calciatori';
+      } else if (tipoUtente === 'societa') {
+        table = 'profili_societa';
+      } else if (tipoUtente === 'staff') {
+        table = 'profili_staff';
+      }
+
+      const { data: profilo, error: profiloError } = await supabase
+        .from(table)
+        .select('*')
+        .eq('utente_id', userId)
+        .single();
+
+      if (profiloError) throw profiloError;
+      return {
+        tipo_utente: tipoUtente,
+        ...profilo
+      };
+    } catch (error) {
+      console.error('Errore caricamento profilo:', error);
+      return null;
+    }
+  },
+
+async signOut() {
+  try {
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
+    return { success: true };
+  } catch (error) {
+    console.error('Errore signOut:', error);
+    return { success: false, error: error.message };
   }
-}
+},
 
-export async function getCurrentSession() {
-  const { data, error } = await supabase.auth.getSession()
-  if (error) throw error
-  return data.session
-}
+  async aggiornaProfilo(userId, tipoUtente, dati) {
+    try {
+      let table;
+      if (tipoUtente === 'calciatore') {
+        table = 'profili_calciatori';
+      } else if (tipoUtente === 'societa') {
+        table = 'profili_societa';
+      } else if (tipoUtente === 'staff') {
+        table = 'profili_staff';
+      }
+      const { data, error } = await supabase
+        .from(table)
+        .update(dati)
+        .eq('utente_id', userId)
+        .select();
 
-export async function getCurrentUser() {
-  const { data, error } = await supabase.auth.getUser()
-  if (error) throw error
-  return data.user
-}
+      if (error) throw error;
+      return {
+        success: true,
+        profilo: data[0]
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  },
 
-export async function login({ email, password }) {
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-  if (error) throw error
-  return data
-}
+  async uploadFotoProfilo(userId, file, tipoUtente) {
+    try {
+      const fileName = `${tipoUtente}s/profili/${userId}/${Date.now()}_${file.name}`;
+      const { data, error } = await supabase.storage
+        .from('ingaggio-media')
+        .upload(fileName, file);
 
-export async function register({ email, password, role, profile = {} }) {
-  const userRole = normalizeRole(role)
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: { role: userRole },
-    },
-  })
+      if (error) throw error;
 
-  if (error) throw error
+      const { data: publicUrl } = supabase.storage
+        .from('ingaggio-media')
+        .getPublicUrl(fileName);
 
-  const user = data.user
-  if (user) {
-    await upsertProfile({
-      userId: user.id,
-      profile: {
-        ...profile,
-        role: userRole,
-      },
-    })
+      return {
+        success: true,
+        url: publicUrl.publicUrl
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  },
+
+  async getSessione() {
+    try {
+      const { data, error } = await supabase.auth.getSession();
+      if (error) throw error;
+      if (data.session) {
+        const profilo = await this.caricaProfilo(data.session.user.id);
+        return {
+          user: data.session.user,
+          profilo
+        };
+      }
+      return null;
+    } catch (error) {
+      console.error('Errore sessione:', error);
+      return null;
+    }
   }
-
-  return data
-}
-
-export async function logout() {
-  const { error } = await supabase.auth.signOut()
-  if (error) throw error
-}
-
-export async function getProfileByUserId(userId) {
-  if (!userId) return null
-
-  const { data, error } = await supabase
-    .from(PROFILES_TABLE)
-    .select('*')
-    .eq('user_id', userId)
-    .maybeSingle()
-
-  if (error) throw error
-  return mapProfile(data)
-}
-
-export async function upsertProfile({ userId, profile }) {
-  if (!userId) throw new Error('userId is required')
-
-  const payload = {
-    ...profile,
-    user_id: userId,
-    role: normalizeRole(profile?.role || profile?.tipo || profile?.tipo_utente),
-    updated_at: new Date().toISOString(),
-  }
-
-  const { data, error } = await supabase
-    .from(PROFILES_TABLE)
-    .upsert(payload, { onConflict: 'user_id' })
-    .select('*')
-    .single()
-
-  if (error) throw error
-  return mapProfile(data)
-}
-
-export function onAuthStateChange(callback) {
-  return supabase.auth.onAuthStateChange(callback)
 }
