@@ -8,14 +8,11 @@ export default function Login() {
   
   const { login } = useAuth(); // Usiamo la funzione 'login' dal nostro hook
 
-  const gestisciLogin = async (e) => {
-    // 1. Questo comando è fondamentale per far funzionare il tasto INVIO senza ricaricare la pagina
-    e.preventDefault(); 
-    
+  const handleLogin = async () => {
     setCaricamento(true);
     console.log("Tentativo di accesso per:", email);
 
-      try {
+    try {
       const result = await login(email, password);
       
       if (result.success) {
@@ -60,7 +57,7 @@ export default function Login() {
         <h2 style={{ color: '#1a7a3c', textAlign: 'center', marginBottom: '30px' }}>Entra in Campo</h2>
         
         {/* Usiamo il tag <form> così il tasto INVIO del PC funziona in automatico! */}
-        <form onSubmit={gestisciLogin} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <form style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
             <label style={{ fontSize: '0.8rem', color: '#666', fontWeight: 'bold' }}>Email</label>
@@ -87,7 +84,8 @@ export default function Login() {
           </div>
 
           <button 
-            type="submit" 
+            type="button" 
+            onClick={handleLogin}
             disabled={caricamento}
             style={{ 
               padding: '14px', 
