@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -8,7 +7,6 @@ export default function Login() {
   const [caricamento, setCaricamento] = useState(false);
   
   const { login } = useAuth(); // Usiamo la funzione 'login' dal nostro hook
-  const navigate = useNavigate();
 
   const gestisciLogin = async (e) => {
     // 1. Questo comando è fondamentale per far funzionare il tasto INVIO senza ricaricare la pagina
@@ -22,7 +20,8 @@ export default function Login() {
       
       if (result.success) {
         console.log("Accesso riuscito!");
-        navigate('/dashboard', { replace: true });
+        // Nessun navigate manuale: App.jsx reindirizza automaticamente a /dashboard
+        // quando isAuthenticated diventa true.
       } else {
         alert("Ops! Qualcosa è andato storto: " + (result.error || "Controlla i dati"));
       }
@@ -109,7 +108,15 @@ export default function Login() {
       </div>
       
       <p style={{ marginTop: '20px', color: '#666', fontSize: '0.9rem' }}>
-        Non hai un account? <span style={{ color: '#1a7a3c', fontWeight: 'bold', cursor: 'pointer' }}>Registrati</span>
+        Non hai un account?{' '}
+        <a
+          href="https://ingaggio.com/"
+          target="_blank"
+          rel="noreferrer"
+          style={{ color: '#1a7a3c', fontWeight: 'bold', cursor: 'pointer' }}
+        >
+          Registrati
+        </a>
       </p>
     </div>
   );
