@@ -22,8 +22,7 @@ export default function Login() {
       
       if (result.success) {
         console.log("Accesso riuscito!");
-        // Usiamo questo comando "potente" che forza l'entrata allo stadio!
-        window.location.assign('/dashboard'); 
+        navigate('/dashboard', { replace: true });
       } else {
         alert("Ops! Qualcosa è andato storto: " + (result.error || "Controlla i dati"));
       }
@@ -46,7 +45,11 @@ export default function Login() {
       fontFamily: 'sans-serif'
     }}>
       {/* LOGO PIÙ GRANDE */}
-      <img src="/logo-ingaggio.png" alt="Logo" style={{ height: '120px', marginBottom: '20px' }} />
+      <img
+        src={`${import.meta.env.BASE_URL}logo-ingaggio.png`}
+        alt="Logo"
+        style={{ height: '120px', marginBottom: '20px' }}
+      />
       
       <div style={{ 
         background: 'white', 

@@ -22,14 +22,14 @@ export default function Dashboard() {
       });
 
       // 3. Diciamo a Supabase di chiudere, ma non aspettiamo che finisca con calma
-      signOut(); 
+      await signOut(); 
       
-      // 4. Spingiamo l'utente verso il login in modo forzato ricaricando la pagina
-      window.location.href = '/login'; 
+      // 4. Torniamo al login via router (senza hard refresh)
+      navigate('/login', { replace: true }); 
       
     } catch (error) {
       console.error("Errore durante l'uscita:", error);
-      window.location.href = '/login';
+      navigate('/login', { replace: true });
     }
   };
 
@@ -49,7 +49,11 @@ export default function Dashboard() {
       {/* TESTATA (HEADER) */}
       <header className="main-header">
         <div className="header-left">
-          <img src="/logo-ingaggio.png" alt="Logo" className="header-logo" />
+          <img
+            src={`${import.meta.env.BASE_URL}logo-ingaggio.png`}
+            alt="Logo"
+            className="header-logo"
+          />
           <h1 className="brand-name">INGAGGIO</h1>
         </div>
         
