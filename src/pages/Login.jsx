@@ -6,17 +6,10 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [caricamento, setCaricamento] = useState(false);
   
-  // Recuperiamo le funzioni dal motore useAuth
-  const auth = useAuth(); 
+  const { login } = useAuth();
 
   const handleLogin = async (e) => {
     if (e) e.preventDefault();
-    
-    // DIAGNOSTICA: Se il motore è rotto, ce lo dice subito
-    if (!auth.login && !auth.signIn) {
-      alert("ERRORE TECNICO: Il motore di login non è collegato correttamente. Controlla useAuth.js");
-      return;
-    }
 
     if (!email || !password) {
       alert("Mancano i dati: inserisci email e password.");
@@ -24,10 +17,9 @@ export default function Login() {
     }
 
     setCaricamento(true);
-    const loginFunction = auth.login || auth.signIn;
 
     try {
-      const result = await loginFunction(email, password);
+      const result = await login(email, password);
       
       if (result && result.success) {
         console.log("Accesso riuscito!");
@@ -48,7 +40,7 @@ export default function Login() {
       height: '100vh', backgroundColor: '#f8f9fa', fontFamily: 'sans-serif' 
     }}>
       
-      <img src="/logo-ingaggio.png" alt="Logo" style={{ height: '140px', marginBottom: '30px' }} />
+      <img src={`${import.meta.env.BASE_URL}logo-ingaggio.png`} alt="Logo" style={{ height: '140px', marginBottom: '30px' }} />
       
       <div style={{ 
         background: 'white', padding: '40px', borderRadius: '20px', 
@@ -58,7 +50,7 @@ export default function Login() {
             Entra in Campo
         </h2>
         
-        <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <form onSubmit={(e) => e.preventDefault()} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
             <label style={{ fontSize: '0.8rem', color: '#666', fontWeight: 'bold' }}>Email</label>
             <input 
@@ -84,10 +76,11 @@ export default function Login() {
           </div>
 
           <button 
-            type="submit" 
+            type="button" 
+            onClick={handleLogin}
             disabled={caricamento}
             style={{ 
-              padding: '14px', backgroundColor: '#1a7a3c', color: white, border: 'none', 
+              padding: '14px', backgroundColor: '#1a7a3c', color: 'white', border: 'none', 
               borderRadius: '8px', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer' 
             }}
           >
