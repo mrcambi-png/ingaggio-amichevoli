@@ -101,6 +101,7 @@ export const authService = {
 
    async signIn(email, password) {
     try {
+      console.log('Tentativo di login in corso...');
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
@@ -116,6 +117,7 @@ export const authService = {
         message: 'Login completato'
       };
     } catch (error) {
+      console.error('Errore signInWithPassword:', error);
       return { success: false, error: error.message };
     }
   },

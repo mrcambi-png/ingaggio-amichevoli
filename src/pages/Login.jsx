@@ -12,6 +12,7 @@ export default function Login() {
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
+    console.log("--> FORM INVIATO CON:", email);
     e.preventDefault();
     if (caricamento) return;
     setErroreLogin('');
@@ -24,6 +25,7 @@ export default function Login() {
     setCaricamento(true);
 
     try {
+      console.log("Tentativo di login in corso...");
       const result = await login(email, password);
       
       if (result && result.success) {
@@ -35,7 +37,7 @@ export default function Login() {
         alert("ACCESSO NEGATO: " + messaggioErrore);
       }
     } catch (err) {
-      console.error("ERRORE DI CONNESSIONE:", err);
+      console.error("Errore login:", err);
       setErroreLogin(err.message || 'Errore di connessione');
       alert("ERRORE DI CONNESSIONE: " + err.message);
     } finally {

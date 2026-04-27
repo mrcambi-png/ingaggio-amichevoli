@@ -54,8 +54,15 @@ export function AuthProvider({ children }) {
   const login = useCallback(async (email, password) => {
     setLoading(true);
     setError(null);
+    let timeoutId;
     try {
-      const result = await authService.signIn(email, password);
+      const timeoutPromise = new Promise((_, reject) => {
+        timeoutId = setTimeout(() => {
+          reject(new Error('Timeout login: Supabase non ha risposto in tempo'));
+        }, 15000);
+      });
+
+      const result = await Promise.race([authService.signIn(email, password), timeoutPromise]);
 
       if (result.success) {
         setUser(result.user);
@@ -71,6 +78,8 @@ export function AuthProvider({ children }) {
       console.error('Errore login:', err);
       setLoading(false);
       return { success: false, error: err.message };
+    } finally {
+      if (timeoutId) clearTimeout(timeoutId);
     }
   }, []);
 
