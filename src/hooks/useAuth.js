@@ -59,7 +59,7 @@ export function AuthProvider({ children }) {
       const timeoutPromise = new Promise((_, reject) => {
         timeoutId = setTimeout(() => {
           reject(new Error('Timeout login: Supabase non ha risposto in tempo'));
-        }, 15000);
+        }, 40000);
       });
 
       const result = await Promise.race([authService.signIn(email, password), timeoutPromise]);

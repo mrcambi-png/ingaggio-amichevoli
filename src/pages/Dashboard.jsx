@@ -1,37 +1,30 @@
 import React from 'react';
 import { useAuth } from '../hooks/useAuth';
 import './Dashboard.css';
+import CreaAnnuncio from '../components/CreaAnnuncio';
 
 export default function Dashboard() {
-  const { profilo, isAuthenticated, login, logout } = useAuth(); // Usiamo logout che è il nome standard
+  const { profilo, isAuthenticated, login, logout } = useAuth();
 
-  // VERSIONE ATOMICA DEL LOGOUT (Senza errori di navigazione)
+  // --- FUNZIONE PER USCIRE (LOGOUT) ---
   const handleLogout = async () => {
     try {
-      // 1. Puliamo subito la memoria locale (il borsone dei dati)
       localStorage.clear();
       sessionStorage.clear();
-      
-      // 2. Cancelliamo i cookie di sessione a mano
       document.cookie.split(";").forEach((c) => {
         document.cookie = c
           .replace(/^ +/, "")
           .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
       });
-
-      // 3. Diciamo a Supabase di chiudere la sessione
       await logout(); 
-      
-      // 4. FORZIAMO il ritorno al login pulendo tutto il browser
       window.location.href = '/login'; 
-      
     } catch (error) {
       console.error("Errore durante l'uscita:", error);
       window.location.href = '/login';
     }
   };
 
-  // Se non siamo loggati o i dati non sono pronti, mostriamo il caricamento
+  // --- SCHERMATA DI ATTESA (CARICAMENTO) ---
   if (!isAuthenticated || !profilo) {
     return (
       <div className="loading-screen" style={{ 
@@ -49,13 +42,12 @@ export default function Dashboard() {
     );
   }
 
-  // Capisce se deve mostrare il nome dell'ASD o il nome del calciatore/staff
   const nomeVisualizzato = profilo.tipo_utente === 'societa' ? profilo.nome_asd : profilo.nome;
 
   return (
     <div className="dashboard-wrapper">
       
-      {/* TESTATA (HEADER) */}
+      {/* TESTATA (IL MENU IN ALTO) */}
       <header className="main-header" style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -65,11 +57,7 @@ export default function Dashboard() {
         boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
       }}>
         <div className="header-left" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <img
-            src="/logo-ingaggio.png"
-            alt="Logo"
-            style={{ width: '40px', height: 'auto' }}
-          />
+          <img src="/logo-ingaggio.png" alt="Logo" style={{ width: '40px', height: 'auto' }} />
           <h1 className="brand-name" style={{ color: '#1a7a3c', margin: 0, fontSize: '1.5rem', fontWeight: '900' }}>
             INGAGGIO
           </h1>
@@ -79,36 +67,41 @@ export default function Dashboard() {
           <div className="user-info-mini" style={{ textAlign: 'right', display: 'flex', flexDirection: 'column' }}>
             <span className="user-name-top" style={{ fontWeight: 'bold', color: '#1f2937' }}>{nomeVisualizzato}</span>
             <span className="user-tag" style={{ fontSize: '0.8rem', color: '#6b7280', textTransform: 'capitalize' }}>
-              {profilo.tipo_utente} | Mun. {profilo.municipio_num}
+              {profilo.tipo_utente} | Municipio {profilo.municipio_num}
             </span>
           </div>
           <button 
-            onClick={handleLogout} 
-            className="btn-logout"
+            onClick={handleLogout}
             style={{
               padding: '0.5rem 1rem',
-              backgroundColor: '#ef4444',
-              color: 'white',
-              border: 'none',
+              backgroundColor: '#f1f3f5',
+              color: '#495057',
+              border: '1px solid #dee2e6',
               borderRadius: '8px',
               cursor: 'pointer',
-              fontWeight: 'bold'
+              fontWeight: '600'
             }}
           >
-            Esci 🚪
+            Esci
           </button>
         </div>
       </header>
 
       <main className="dashboard-container" style={{ padding: '2rem' }}>
-        {/* BENVENUTO */}
+        
+        {/* PARTE 1: BENVENUTO */}
         <section className="dashboard-welcome" style={{ marginBottom: '2rem' }}>
           <h2 className="welcome-text" style={{ color: '#1f2937', fontSize: '2rem' }}>
             Ciao {nomeVisualizzato}, cosa cerchiamo oggi?
           </h2>
         </section>
 
-        {/* AREA ANNUNCI (Placeholder per ora) */}
+        {/* PARTE 2: IL MODULO PER CREARE ANNUNCI (NUOVO!) */}
+        <section className="creation-section" style={{ marginBottom: '3rem' }}>
+          <CreaAnnuncio />
+        </section>
+
+        {/* PARTE 3: LA BACHECA DOVE SI VEDONO GLI ANNUNCI */}
         <section className="dashboard-content">
           <div className="bacheca-placeholder" style={{
             background: 'white',
@@ -124,6 +117,7 @@ export default function Dashboard() {
             </div>
           </div>
         </section>
+
       </main>
     </div>
   );

@@ -1,0 +1,26 @@
+# Query: timeout
+# ContextLines: 1
+
+10 results - 2 files
+
+src\hooks\useAuth.js:
+  56      setError(null);
+  57:     let timeoutId;
+  58      try {
+  59:       const timeoutPromise = new Promise((_, reject) => {
+  60:         timeoutId = setTimeout(() => {
+  61:           reject(new Error('Timeout login: Supabase non ha risposto in tempo'));
+  62          }, 40000);
+
+  64  
+  65:       const result = await Promise.race([authService.signIn(email, password), timeoutPromise]);
+  66  
+
+  81      } finally {
+  82:       if (timeoutId) clearTimeout(timeoutId);
+  83      }
+
+src\pages\AnnuncioDettaglio.jsx:
+  33          setCopiato(true);
+  34:         setTimeout(() => setCopiato(false), 2000);
+  35        } catch {}
