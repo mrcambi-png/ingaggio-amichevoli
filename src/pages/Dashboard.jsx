@@ -4,22 +4,17 @@ import './Dashboard.css';
 import CreaAnnuncio from '../components/CreaAnnuncio';
 
 export default function Dashboard() {
-  const { profilo, isAuthenticated, login, logout } = useAuth();
+  // Prendiamo 'logout' dal nostro "Cervello" useAuth
+  const { profilo, isAuthenticated, logout } = useAuth();
 
   // --- FUNZIONE PER USCIRE (LOGOUT) ---
-  const handleLogout = async () => {
+  // Ora è semplicissima: chiama quella di useAuth che fa già tutto il lavoro sporco
+  const handleLogoutClick = async () => {
     try {
-      localStorage.clear();
-      sessionStorage.clear();
-      document.cookie.split(";").forEach((c) => {
-        document.cookie = c
-          .replace(/^ +/, "")
-          .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-      });
       await logout(); 
-      window.location.href = '/login'; 
     } catch (error) {
       console.error("Errore durante l'uscita:", error);
+      // In caso di errore estremo, forziamo comunque il ritorno al login
       window.location.href = '/login';
     }
   };
@@ -71,7 +66,7 @@ export default function Dashboard() {
             </span>
           </div>
           <button 
-            onClick={handleLogout}
+            onClick={handleLogoutClick}
             style={{
               padding: '0.5rem 1rem',
               backgroundColor: '#f1f3f5',
@@ -96,12 +91,12 @@ export default function Dashboard() {
           </h2>
         </section>
 
-        {/* PARTE 2: IL MODULO PER CREARE ANNUNCI (NUOVO!) */}
+        {/* PARTE 2: IL MODULO PER CREARE ANNUNCI */}
         <section className="creation-section" style={{ marginBottom: '3rem' }}>
           <CreaAnnuncio />
         </section>
 
-        {/* PARTE 3: LA BACHECA DOVE SI VEDONO GLI ANNUNCI */}
+        {/* PARTE 3: LA BACHECA */}
         <section className="dashboard-content">
           <div className="bacheca-placeholder" style={{
             background: 'white',

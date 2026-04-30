@@ -68,11 +68,11 @@ export function AuthProvider({ children }) {
         setUser(result.user);
         setProfilo(result.profilo);
         setLoading(false);
-        return result; // <--- FONDAMENTALE: restituisce il successo al componente Login
+        return result; 
       } else {
         setError(result.error);
         setLoading(false);
-        return result; // <--- Restituisce l'errore
+        return result; 
       }
     } catch (err) {
       console.error('Errore login:', err);
@@ -83,23 +83,32 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
+  // --- QUESTA È LA PARTE CHE ABBIAMO MODIFICATO PER TE ---
   const signOut = useCallback(async () => {
     setLoading(true);
     try {
-      const result = await authService.signOut();
-      if (result.success) {
-        setUser(null);
-        setProfilo(null);
-        setError(null);
-      }
-      return result;
+      // 1. Chiamiamo il servizio di logout originale
+      await authService.signOut();
+      
+      // 2. Puliamo lo stato interno di React
+      setUser(null);
+      setProfilo(null);
+      setError(null);
+
+      // 3. PULIZIA PROFONDA: Cancelliamo i dati salvati nel browser (risolve il bug del lock)
+      localStorage.clear();
+      sessionStorage.clear();
+
+      // 4. RESET TOTALE: Riportiamo l'utente al login rinfrescando la pagina
+      window.location.href = "/login";
+
     } catch (err) {
       console.error("Errore durante il logout:", err);
-      return { success: false, error: err.message };
     } finally {
       setLoading(false);
     }
   }, []);
+  // --- FINE MODIFICA ---
 
   const value = useMemo(() => ({
     user,
