@@ -273,12 +273,6 @@ export default function useAuth() {
     }
   };
  
-  // ---- FUNZIONE: Health check ----
-  const checkHealth = async () => {
-    console.log('[useAuth] Esecuzione health check...');
-    return await checkAuthHealth();
-  };
- 
   // ---- FUNZIONE: Reset emergenza ----
   const resetEmergency = async () => {
     console.log('[useAuth] Avvio reset emergenza...');
@@ -298,7 +292,6 @@ export default function useAuth() {
     accedi,
     registrati,
     esci,
-    checkHealth,
     resetEmergency,
   };
 }
