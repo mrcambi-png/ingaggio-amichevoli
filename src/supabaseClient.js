@@ -1,7 +1,15 @@
 import { createClient } from '@supabase/supabase-js'
 
+// NUOVO: Pulisci le chiavi vecchie UNA volta sola
+if (typeof window !== 'undefined') {
+  localStorage.removeItem('ingaggio-v2-auth')
+  localStorage.removeItem('sb-ingaggio-v2-auth')
+  localStorage.removeItem('supabase.auth.token')
+}
+
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
+// ... resto del file uguale
 
 if (!SUPABASE_URL ||!SUPABASE_ANON_KEY) {
   console.error(
