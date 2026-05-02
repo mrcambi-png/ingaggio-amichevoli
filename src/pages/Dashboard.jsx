@@ -51,42 +51,47 @@ export default function Dashboard() {
     <div className="dashboard-wrapper">
       
       <header className="main-header" style={{
-  padding: '1rem 1.5rem',
   backgroundColor: 'white',
   boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
 }}>
   <style>{`
     @media (min-width: 768px) {
-     .header-wrapper {
+      .header-wrapper {
         display: flex;
         justify-content: space-between;
         align-items: center;
+        padding: 1rem 2rem;
       }
-     .header-row-1 {
-        margin-bottom: 0!important;
-        flex: 1;
+      .header-row-1 {
+        margin-bottom: 0 !important;
+        padding: 0 !important;
+        width: auto !important;
       }
-     .user-info-mini {
-        text-align: left!important;
-        margin-left: 2rem;
-        flex: 1;
-      }
-     .logout-btn {
-        margin-left: auto;
+      .user-info-mini {
+        text-align: left !important;
+        padding: 0 !important;
+        margin: 0 2rem;
       }
     }
   `}</style>
 
   <div className="header-wrapper">
-    {/* Riga 1: Logo + Esci su mobile */}
+    {/* Riga 1: Logo + Esci */}
     <div className="header-row-1" style={{
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
+      padding: '1rem 1.5rem',
       marginBottom: '0.5rem',
-      padding: '0.05rem'
-}}>
-      <div className="header-left" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+      width: '100%',
+      boxSizing: 'border-box'
+    }}>
+      <div className="header-left" style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: '10px',
+        flexShrink: 0
+      }}>
         <img src="/logo-ingaggio.png" alt="Logo" style={{ width: '40px', height: 'auto' }} />
         <h1 className="brand-name" style={{ color: '#1a7a3c', margin: 0, fontSize: '1.5rem', fontWeight: '900' }}>
           INGAGGIO
@@ -97,13 +102,14 @@ export default function Dashboard() {
         onClick={handleLogoutClick}
         className="logout-btn"
         style={{
-          padding: '0.05rem 1rem',
+          padding: '0.5rem 1rem',
           backgroundColor: '#f1f3f5',
           color: '#495057',
           border: '1px solid #dee2e6',
           borderRadius: '8px',
           cursor: 'pointer',
-          fontWeight: '600'
+          fontWeight: '600',
+          flexShrink: 0
         }}
       >
         Esci
@@ -113,7 +119,9 @@ export default function Dashboard() {
     {/* Riga 2: Nome società + Municipio */}
     <div className="user-info-mini" style={{ 
       textAlign: 'right',
-      lineHeight: '1.3'
+      lineHeight: '1.3',
+      padding: '0 1.5rem 1rem 1.5rem',
+      boxSizing: 'border-box'
     }}>
       <span className="user-name-top" style={{ 
         fontWeight: '700', 
