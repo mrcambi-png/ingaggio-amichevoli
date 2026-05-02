@@ -51,45 +51,89 @@ export default function Dashboard() {
     <div className="dashboard-wrapper">
       
       <header className="main-header" style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: '1rem 2rem',
-        backgroundColor: 'white',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+  padding: '1rem 1.5rem',
+  backgroundColor: 'white',
+  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+}}>
+  <style>{`
+    @media (min-width: 768px) {
+     .header-wrapper {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+     .header-row-1 {
+        margin-bottom: 0!important;
+        flex: 1;
+      }
+     .user-info-mini {
+        text-align: left!important;
+        margin-left: 2rem;
+        flex: 1;
+      }
+     .logout-btn {
+        margin-left: auto;
+      }
+    }
+  `}</style>
+
+  <div className="header-wrapper">
+    {/* Riga 1: Logo + Esci su mobile */}
+    <div className="header-row-1" style={{
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: '0.5rem'
+    }}>
+      <div className="header-left" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <img src="/logo-ingaggio.png" alt="Logo" style={{ width: '40px', height: 'auto' }} />
+        <h1 className="brand-name" style={{ color: '#1a7a3c', margin: 0, fontSize: '1.5rem', fontWeight: '900' }}>
+          INGAGGIO
+        </h1>
+      </div>
+      
+      <button 
+        onClick={handleLogoutClick}
+        className="logout-btn"
+        style={{
+          padding: '0.5rem 1rem',
+          backgroundColor: '#f1f3f5',
+          color: '#495057',
+          border: '1px solid #dee2e6',
+          borderRadius: '8px',
+          cursor: 'pointer',
+          fontWeight: '600'
+        }}
+      >
+        Esci
+      </button>
+    </div>
+
+    {/* Riga 2: Nome società + Municipio */}
+    <div className="user-info-mini" style={{ 
+      textAlign: 'right',
+      lineHeight: '1.3'
+    }}>
+      <span className="user-name-top" style={{ 
+        fontWeight: '700', 
+        color: '#1f2937',
+        fontSize: '16px',
+        display: 'block'
       }}>
-        <div className="header-left" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <img src="/logo-ingaggio.png" alt="Logo" style={{ width: '40px', height: 'auto' }} />
-          <h1 className="brand-name" style={{ color: '#1a7a3c', margin: 0, fontSize: '1.5rem', fontWeight: '900' }}>
-            INGAGGIO
-          </h1>
-        </div>
-        
-        <div className="header-right" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <div className="user-info-mini" style={{ textAlign: 'right', display: 'flex', flexDirection: 'column' }}>
-            <span className="user-name-top" style={{ fontWeight: 'bold', color: '#1f2937' }}>{nomeVisualizzato}</span>
-            {profilo && (
-              <span className="user-tag" style={{ fontSize: '0.8rem', color: '#6b7280' }}>
-                Municipio {profilo.municipio_num}
-              </span>
-            )}
-          </div>
-          <button 
-            onClick={handleLogoutClick}
-            style={{
-              padding: '0.5rem 1rem',
-              backgroundColor: '#f1f3f5',
-              color: '#495057',
-              border: '1px solid #dee2e6',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontWeight: '600'
-            }}
-          >
-            Esci
-          </button>
-        </div>
-      </header>
+        {nomeVisualizzato}
+      </span>
+      {profilo && (
+        <span className="user-tag" style={{ 
+          fontSize: '14px', 
+          color: '#6b7280',
+          display: 'block'
+        }}>
+          Municipio {profilo.municipio_num}
+        </span>
+      )}
+    </div>
+  </div>
+</header>
 
       <main className="dashboard-container" style={{ padding: '2rem' }}>
         
