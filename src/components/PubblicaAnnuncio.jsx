@@ -103,7 +103,9 @@ const PubblicaAnnuncio = ({ onSuccess }) => {
     }
     
     setLoading(true);
-  
+    console.log('DEBUG societaId:', societaId); // <-- AGGIUNGI QUESTA
+    console.log('DEBUG user completo:', user);
+    
     try {
       const { data, error } = await supabase
         .from('annunci_amichevoli')
