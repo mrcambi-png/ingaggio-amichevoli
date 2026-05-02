@@ -79,6 +79,10 @@ export default function ListaAnnunci() {
           const giaPrenotato = a.sfidante_id !== null;
           const prenotatoDaMe = a.sfidante_id === user?.id;
           const telefono = a.profili_societa?.telefono?.replace(/\s/g, '').replace('+', '');
+          const oggi = new Date();
+oggi.setHours(0,0,0,0); 
+const dataPartita = new Date(a.data_partita);
+const isScaduto = dataPartita <= oggi;
 
           return (
             <div key={a.id} className="card-annuncio" style={{
@@ -110,30 +114,34 @@ export default function ListaAnnunci() {
 
               <div style={{ marginTop: '15px' }}>
                 
-                {isMioAnnuncio ? (
-                  <div style={{ padding: '10px', backgroundColor: '#f3f4f6', borderRadius: '8px', textAlign: 'center', fontSize: '0.9rem', color: '#6b7280' }}>
-                     {giaPrenotato ? "🎯 Qualcuno ha accettato la tua sfida!" : "⏳ In attesa di sfidanti..."}
-                  </div>
-                ) : !giaPrenotato ? (
-                  <button 
-                    onClick={() => fissaAmichevole(a)} 
-                    style={{ width: '100%', padding: '12px', backgroundColor: '#1e733a', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}
-                  >
-                    🤝 FISSA AMICHEVOLE
-                  </button>
-                ) : prenotatoDaMe ? (
-                  <a 
-                    href={`https://wa.me/39${telefono}?text=Ciao! Abbiamo fissato l'amichevole su INGAGGIO per il ${formattaDataIT(a.data_partita)} alle ${formattaOra(a.ora_partita)}. Siete pronti?`}
-                    target="_blank" rel="noreferrer"
-                    style={{ display: 'block', textAlign: 'center', textDecoration: 'none', padding: '12px', backgroundColor: '#25D366', color: 'white', borderRadius: '8px', fontWeight: 'bold' }}
-                  >
-                    ✅ MATCH PRENOTATO - SCRIVI ORA
-                  </a>
-                ) : (
-                  <button disabled style={{ width: '100%', padding: '12px', backgroundColor: '#d1d5db', color: '#9ca3af', border: 'none', borderRadius: '8px', cursor: 'not-allowed' }}>
-                    NON DISPONIBILE
-                  </button>
-                )}
+              {isMioAnnuncio ? (
+  <div style={{ padding: '10px', backgroundColor: '#f3f4f6', borderRadius: '8px', textAlign: 'center', fontSize: '0.9rem', color: '#6b7280' }}>
+     {giaPrenotato ? "🎯 Qualcuno ha accettato la tua amichevole!" : "⏳ In attesa di avversari..."}
+  </div>
+) : isScaduto ? (
+  <button disabled style={{ width: '100%', padding: '12px', backgroundColor: '#9ca3af', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'not-allowed' }}>
+    ⏰ SCADUTO
+  </button>
+) : !giaPrenotato ? (
+  <button 
+    onClick={() => fissaAmichevole(a)} 
+    style={{ width: '100%', padding: '12px', backgroundColor: '#1e733a', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}
+  >
+    🤝 FISSA AMICHEVOLE
+  </button>
+) : prenotatoDaMe ? (
+  <a 
+    href={`https://wa.me/39${telefono}?text=Ciao! Abbiamo fissato l'amichevole su INGAGGIO per il ${formattaDataIT(a.data_partita)} alle ${formattaOra(a.ora_partita)}. Siete pronti?`}
+    target="_blank" rel="noreferrer"
+    style={{ display: 'block', textAlign: 'center', textDecoration: 'none', padding: '12px', backgroundColor: '#25D366', color: 'white', borderRadius: '8px', fontWeight: 'bold' }}
+  >
+    ✅ MATCH PRENOTATO - SCRIVI ORA
+  </a>
+) : (
+  <button disabled style={{ width: '100%', padding: '12px', backgroundColor: '#d1d5db', color: '#9ca3af', border: 'none', borderRadius: '8px', cursor: 'not-allowed' }}>
+    NON DISPONIBILE
+  </button>
+)}
 
               </div>
             </div>

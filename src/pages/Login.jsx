@@ -50,7 +50,9 @@ if (user) {
           <h2 style={{ color: '#1a7a3c', margin: '10px 0' }}>INGAGGIO</h2>
         </div>
 
-        {error && <p style={{ color: 'red', fontSize: '0.8rem', textAlign: 'center' }}>{error}</p>}
+        {error && <p style={{ color: 'red', textAlign: 'center', marginBottom: '16px' }}>
+  {error === 'Auth session missing!' ? 'Entra in campo!' : error}
+</p>}
 
         <div style={{ marginBottom: '15px' }}>
           <label style={{ display: 'block', fontSize: '0.9rem' }}>Email</label>
