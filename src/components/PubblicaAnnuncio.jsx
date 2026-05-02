@@ -59,8 +59,9 @@ const generaOrari = () => {
 
 const ORARI_DISPONIBILI = generaOrari();
 
-const PubblicaAnnuncio = ({ societaId, onSuccess }) => {
-  const { user } = useAuth(); // Prendo l'utente con profilo
+const PubblicaAnnuncio = ({ onSuccess }) => {
+  const { user } = useAuth(); 
+  const societaId = user?.profilo_societa?.id; 
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     categoria_figc_giovanile: 'Piccoli Amici', 
@@ -97,7 +98,7 @@ const PubblicaAnnuncio = ({ societaId, onSuccess }) => {
     e.preventDefault();
     
     if (!societaId) {
-      alert("Errore: sessione scaduta. Ricarica la pagina ed effettua di nuovo il login.");
+      alert("Errore: profilo società non trovato. Ricarica la pagina.");
       return;
     }
     
