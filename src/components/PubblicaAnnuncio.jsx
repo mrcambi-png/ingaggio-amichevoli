@@ -63,14 +63,14 @@ const PubblicaAnnuncio = ({ societaId, onSuccess }) => {
   const { user } = useAuth(); // Prendo l'utente con profilo
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    categoria_figc_giovanile: 'Piccoli Amici',
+    categoria_figc_giovanile: 'Piccoli Amici', 
     livello_difficolta: 'medio',
-    municipio_num: 'I',
+    municipio_num: '',
     indirizzo: '',
     data_partita: '',
-    ora_partita: '15:00',
+    ora_partita: '15:00', 
     numero_giocatori_cercati: 1,
-    messaggio: '' // Campo facoltativo nuovo
+      messaggio: '' // Campo facoltativo nuovo
   });
 
   // 2. PRE-COMPILA INDIRIZZO DAL PROFILO
@@ -154,14 +154,16 @@ const PubblicaAnnuncio = ({ societaId, onSuccess }) => {
         <div style={{ marginBottom: '15px' }}>
           <label style={{ display: 'block', fontWeight: 'bold' }}>Seleziona Categoria:</label>
           <select 
-            style={{ width: '100%', padding: '8px', borderRadius: '4px' }}
-            value={formData.categoria_figc_giovanile}
-            onChange={(e) => setFormData({...formData, categoria_figc_giovanile: e.target.value})}
-          >
-            {CATEGORIE_GIOVANILI.map(cat => (
-              <option key={cat} value={cat}>{cat}</option>
-            ))}
-          </select>
+  required
+  style={{ width: '100%', padding: '8px', borderRadius: '4px' }}
+  value={formData.categoria_figc_giovanile}
+  onChange={(e) => setFormData({...formData, categoria_figc_giovanile: e.target.value})}
+>
+  <option value="">-- Seleziona Categoria --</option>
+  {CATEGORIE_GIOVANILI.map(cat => (
+    <option key={cat} value={cat}>{cat}</option>
+  ))}
+</select>
         </div>
 
         {/* 1. MENU DIFFICOLTÀ - CONDIZIONALE */}
