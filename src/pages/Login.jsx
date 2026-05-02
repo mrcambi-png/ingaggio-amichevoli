@@ -50,7 +50,7 @@ if (user) {
           <h2 style={{ color: '#1a7a3c', margin: '10px 0' }}>INGAGGIO</h2>
         </div>
 
-        {error && <p style={{ color: 'red', textAlign: 'center', marginBottom: '16px' }}>
+        {error && <p style={{ color: '#1a7a3c', textAlign: 'center', marginBottom: '16px' }}>
   {error === 'Auth session missing!' ? 'Entra in campo!' : error}
 </p>}
 
