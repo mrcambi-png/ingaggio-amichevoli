@@ -15,7 +15,7 @@ export default function ListaAnnunci() {
         .from('annunci_amichevoli')
         .select(`
           *,
-          profili_societa!societa_id (nome_asd, telefono)
+          profili_societa!annunci_amichevoli_societa_id_fkey (nome_asd, telefono)
         `)
         .eq('stato', 'attivo')
         .order('data_partita', { ascending: true });
