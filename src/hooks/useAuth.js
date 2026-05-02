@@ -106,34 +106,49 @@ export default function useAuth() {
     };
   }, []); // UNA SOLA VOLTA al montaggio
  
-  // ---- EFFECT 2: Ascolta cambiamenti auth (login/logout) ----
-  useEffect(() => {
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((evento, sessione) => {
-      console.log('[useAuth] Auth event:', evento);
- 
-      if (evento === 'SIGNED_IN') {
-        console.log('[useAuth] ✓ SIGNED_IN');
-        setUser(sessione.user);
-        setError(null);
-        // Reset il flag così il prossimo login ricarica il profilo
-        profileFetchedRef.current = false;
-      } else if (evento === 'SIGNED_OUT') {
-        console.log('[useAuth] ✓ SIGNED_OUT');
-        setUser(null);
-        setError(null);
-        profileFetchedRef.current = false;
-      } else if (evento === 'TOKEN_REFRESHED') {
-        console.log('[useAuth] 🔄 TOKEN_REFRESHED');
-        setUser(sessione.user);
-      }
-    });
- 
-    return () => {
-      subscription?.unsubscribe();
-    };
-  }, []);
+ // ---- EFFECT 2: Ascolta cambiamenti auth (login/logout) ----
+useEffect(() => {
+  const { data: { subscription } } = supabase.auth.onAuthStateChange((evento, sessione) => {
+    console.log('[useAuth] Auth event:', evento);
+
+    if (evento === 'SIGNED_IN') {
+      console.log('[useAuth] ✓ SIGNED_IN - Ricarico profilo...');
+      setUser(sessione.user);
+      setError(null);
+      profileFetchedRef.current = false;
+
+      // Rilancia il fetch del profilo subito dopo il login
+      (async () => {
+        const { data: profilo } = await supabase
+        .from('profili_societa')
+        .select('id, utente_id, nome_asd, categoria_figc, municipio_num, indirizzo')
+        .eq('utente_id', sessione.user.id)
+        .maybeSingle();
+
+        if (profilo) {
+          console.log('[useAuth] ✓ Profilo caricato post-login:', profilo.nome_asd);
+          setUser(prev => ({...prev, profilo_societa: profilo }));
+        } else {
+          console.warn('[useAuth] Profilo non trovato post-login');
+          setError('Profilo società non trovato');
+        }
+        setLoading(false);
+      })();
+    } else if (evento === 'SIGNED_OUT') {
+      console.log('[useAuth] ✓ SIGNED_OUT');
+      setUser(null);
+      setError(null);
+      profileFetchedRef.current = false;
+    } else if (evento === 'TOKEN_REFRESHED') {
+      console.log('[useAuth] 🔄 TOKEN_REFRESHED');
+      setUser(sessione.user);
+    }
+  });
+
+  return () => {
+    subscription?.unsubscribe();
+  };
+}, []); // Dipendenze vuote - solo al mount
  
 // ---- FUNZIONE: Login ----
 const accedi = async (email, password) => {
