@@ -8,11 +8,7 @@
 // ============================================================================
  
 import { useState, useEffect, useRef } from 'react';
-import supabase, {
-  loginConTimeout,
-  pulisciAuthCompletamente,
-  resetAuthEmergency,
- } from '../supabaseClient';
+import supabase from '../supabaseClient';
  
 export default function useAuth() {
   const [user, setUser] = useState(null);
@@ -272,18 +268,6 @@ export default function useAuth() {
     }
   };
  
-  // ---- FUNZIONE: Reset emergenza ----
-  const resetEmergency = async () => {
-    console.log('[useAuth] Avvio reset emergenza...');
-    const success = await resetAuthEmergency();
-    if (success) {
-      setUser(null);
-      setError(null);
-      profileFetchedRef.current = false;
-    }
-    return success;
-  };
- 
   return {
     user,
     loading,
@@ -291,7 +275,6 @@ export default function useAuth() {
     accedi,
     registrati,
     esci,
-    resetEmergency,
-  };
+    };
 }
  
