@@ -83,8 +83,9 @@ export default function Dashboard() {
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      marginBottom: '0.5rem'
-    }}>
+      marginBottom: '0.5rem',
+      padding: '0.05rem'
+}}>
       <div className="header-left" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
         <img src="/logo-ingaggio.png" alt="Logo" style={{ width: '40px', height: 'auto' }} />
         <h1 className="brand-name" style={{ color: '#1a7a3c', margin: 0, fontSize: '1.5rem', fontWeight: '900' }}>
@@ -96,7 +97,7 @@ export default function Dashboard() {
         onClick={handleLogoutClick}
         className="logout-btn"
         style={{
-          padding: '0.5rem 1rem',
+          padding: '0.05rem 1rem',
           backgroundColor: '#f1f3f5',
           color: '#495057',
           border: '1px solid #dee2e6',
