@@ -59,39 +59,42 @@ export default function Dashboard() {
       .header-wrapper {
         display: flex;
         justify-content: space-between;
-        align-items: center;
+        align-items: flex-start;
         padding: 1rem 2rem;
+        width: 100%;
+        box-sizing: border-box;
       }
       .header-row-1 {
-        margin-bottom: 0 !important;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        margin: 0 !important;
         padding: 0 !important;
-        width: auto !important;
+      }
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-shrink: 0;
+      }
+      .logout-btn {
+        flex-shrink: 0;
       }
       .user-info-mini {
         text-align: left !important;
         padding: 0 !important;
-        margin: 0 2rem;
+        margin: 0 !important;
+        width: 100%;
+        margin-top: 1rem !important;
       }
     }
   `}</style>
-
+  
   <div className="header-wrapper">
-    {/* Riga 1: Logo + Esci */}
-    <div className="header-row-1" style={{
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      padding: '1rem 1.5rem',
-      marginBottom: '0.5rem',
-      width: '100%',
-      boxSizing: 'border-box'
-    }}>
-      <div className="header-left" style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        gap: '10px',
-        flexShrink: 0
-      }}>
+    {/* Riga 1: Logo + Esci (con spazio tra loro) */}
+    <div className="header-row-1">
+      <div className="header-left">
         <img src="/logo-ingaggio.png" alt="Logo" style={{ width: '40px', height: 'auto' }} />
         <h1 className="brand-name" style={{ color: '#1a7a3c', margin: 0, fontSize: '1.5rem', fontWeight: '900' }}>
           INGAGGIO
@@ -108,39 +111,39 @@ export default function Dashboard() {
           border: '1px solid #dee2e6',
           borderRadius: '8px',
           cursor: 'pointer',
-          fontWeight: '600',
-          flexShrink: 0
+          fontWeight: '600'
         }}
       >
         Esci
       </button>
     </div>
-
-    {/* Riga 2: Nome società + Municipio */}
-    <div className="user-info-mini" style={{ 
-      textAlign: 'right',
-      lineHeight: '1.3',
-      padding: '0 1.5rem 1rem 1.5rem',
-      boxSizing: 'border-box'
+  </div>
+  
+  {/* Riga 2: Nome società + Municipio (sotto, full width) */}
+  <div className="user-info-mini" style={{ 
+    textAlign: 'left',
+    lineHeight: '1.3',
+    padding: '0 2rem 1rem 2rem',
+    boxSizing: 'border-box',
+    width: '100%'
+  }}>
+    <span className="user-name-top" style={{ 
+      fontWeight: '700', 
+      color: '#1f2937',
+      fontSize: '16px',
+      display: 'block'
     }}>
-      <span className="user-name-top" style={{ 
-        fontWeight: '700', 
-        color: '#1f2937',
-        fontSize: '16px',
+      {nomeVisualizzato}
+    </span>
+    {profilo && (
+      <span className="user-tag" style={{ 
+        fontSize: '14px', 
+        color: '#6b7280',
         display: 'block'
       }}>
-        {nomeVisualizzato}
+        Municipio {profilo.municipio_num}
       </span>
-      {profilo && (
-        <span className="user-tag" style={{ 
-          fontSize: '14px', 
-          color: '#6b7280',
-          display: 'block'
-        }}>
-          Municipio {profilo.municipio_num}
-        </span>
-      )}
-    </div>
+    )}
   </div>
 </header>
 
