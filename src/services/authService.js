@@ -127,8 +127,8 @@ export const authService = {
       const { data: tipoData, error: tipoError } = await supabase
         .from('profili_utenti')
         .select('tipo_utente')
-        .eq('id', userId)
-        .single();
+        .eq('utente_id', userId)
+        .maybeSingle();
 
       if (tipoError) throw tipoError;
       const tipoUtente = tipoData.tipo_utente;
@@ -146,7 +146,7 @@ export const authService = {
         .from(table)
         .select('*')
         .eq('utente_id', userId)
-        .single();
+        .maybeSingle();
 
       if (profiloError) throw profiloError;
       return {
@@ -184,7 +184,8 @@ async signOut() {
         .from(table)
         .update(dati)
         .eq('utente_id', userId)
-        .select();
+        .select()
+        .maybeSingle();
 
       if (error) throw error;
       return {

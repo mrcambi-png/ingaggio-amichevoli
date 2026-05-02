@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { supabase } from '../supabaseClient';
+import supabase from '../supabaseClient';
 
 // 1. LA LISTA COMPLETA DI TUTTE LE CATEGORIE FIGC (Non ne manca nessuna!)
 const CATEGORIE_GIOVANILI = [
@@ -22,12 +22,12 @@ const CATEGORIE_GIOVANILI = [
 
 // 2. I LIVELLI DI DIFFICOLTÀ CON LE ETICHETTE COLORATE
 const LIVELLI_DIFFICOLTA = [
-  { valore: 'basso-basso', etichetta: 'Molto Facile 🟢' },
-  { valore: 'basso', etichetta: 'Facile 🟢' },
-  { valore: 'medio-basso', etichetta: 'Moderato 🟡' },
-  { valore: 'medio', etichetta: 'Competitivo 🟠' },
-  { valore: 'medio-alto', etichetta: 'Impegnativo 🔴' },
-  { valore: 'alto', etichetta: 'Molto Difficile 🔥' }
+  { valore: 'basso-basso', etichetta: 'basso-basso' },
+  { valore: 'basso', etichetta: 'basso' },
+  { valore: 'medio-basso', etichetta: 'medi-basso' },
+  { valore: 'medio', etichetta: 'medio' },
+  { valore: 'medio-alto', etichetta: 'medio-alto' },
+  { valore: 'alto', etichetta: 'alto' }
 ];
 
 const PubblicaAnnuncio = ({ societaId, onSuccess }) => {

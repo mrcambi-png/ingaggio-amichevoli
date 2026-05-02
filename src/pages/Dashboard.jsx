@@ -1,26 +1,22 @@
 import React from 'react';
-import { useAuth } from '../hooks/useAuth';
+import useAuth from '../hooks/useAuth';
 import './Dashboard.css';
-import CreaAnnuncio from '../components/CreaAnnuncio';
+import PubblicaAnnuncio from '../components/PubblicaAnnuncio';
+import ListaAnnunci from '../components/ListaAnnunci'; 
 
 export default function Dashboard() {
-  // Prendiamo 'logout' dal nostro "Cervello" useAuth
-  const { profilo, isAuthenticated, logout } = useAuth();
+  const { user, loading, error, esci } = useAuth();
 
-  // --- FUNZIONE PER USCIRE (LOGOUT) ---
-  // Ora è semplicissima: chiama quella di useAuth che fa già tutto il lavoro sporco
   const handleLogoutClick = async () => {
     try {
-      await logout(); 
+      await esci(); 
     } catch (error) {
       console.error("Errore durante l'uscita:", error);
-      // In caso di errore estremo, forziamo comunque il ritorno al login
       window.location.href = '/login';
     }
   };
 
-  // --- SCHERMATA DI ATTESA (CARICAMENTO) ---
-  if (!isAuthenticated || !profilo) {
+  if (!user) {
     return (
       <div className="loading-screen" style={{ 
         display: 'flex', 
@@ -37,12 +33,23 @@ export default function Dashboard() {
     );
   }
 
-  const nomeVisualizzato = profilo.tipo_utente === 'societa' ? profilo.nome_asd : profilo.nome;
+  // Dopo il if (!user) esitente, aggiungi:
+  if (error && !user?.profilo_societa) {
+    return (
+      <div style={{ padding: '20px', backgroundColor: '#fff3cd', color: '#856404' }}>
+        <h2>⚠️ Errore Profilo</h2>
+        <p>{error}</p>
+        <button onClick={esci}>Esci e riprova</button>
+      </div>
+    );
+  }
+
+  const profilo = user?.profilo_societa;
+  const nomeVisualizzato = !profilo ? 'Caricamento...' : profilo.nome_asd;
 
   return (
     <div className="dashboard-wrapper">
       
-      {/* TESTATA (IL MENU IN ALTO) */}
       <header className="main-header" style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -61,9 +68,11 @@ export default function Dashboard() {
         <div className="header-right" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
           <div className="user-info-mini" style={{ textAlign: 'right', display: 'flex', flexDirection: 'column' }}>
             <span className="user-name-top" style={{ fontWeight: 'bold', color: '#1f2937' }}>{nomeVisualizzato}</span>
-            <span className="user-tag" style={{ fontSize: '0.8rem', color: '#6b7280', textTransform: 'capitalize' }}>
-              {profilo.tipo_utente} | Municipio {profilo.municipio_num}
-            </span>
+            {profilo && (
+              <span className="user-tag" style={{ fontSize: '0.8rem', color: '#6b7280' }}>
+                Municipio {profilo.municipio_num}
+              </span>
+            )}
           </div>
           <button 
             onClick={handleLogoutClick}
@@ -84,19 +93,16 @@ export default function Dashboard() {
 
       <main className="dashboard-container" style={{ padding: '2rem' }}>
         
-        {/* PARTE 1: BENVENUTO */}
         <section className="dashboard-welcome" style={{ marginBottom: '2rem' }}>
           <h2 className="welcome-text" style={{ color: '#1f2937', fontSize: '2rem' }}>
             Ciao {nomeVisualizzato}, cosa cerchiamo oggi?
           </h2>
         </section>
 
-        {/* PARTE 2: IL MODULO PER CREARE ANNUNCI */}
         <section className="creation-section" style={{ marginBottom: '3rem' }}>
-          <CreaAnnuncio />
+        <PubblicaAnnuncio />
         </section>
 
-        {/* PARTE 3: LA BACHECA */}
         <section className="dashboard-content">
           <div className="bacheca-placeholder" style={{
             background: 'white',
@@ -109,6 +115,7 @@ export default function Dashboard() {
             <div className="empty-state">
               <p style={{ color: '#6b7280' }}>I match per te stanno arrivando...</p>
               <div style={{ fontSize: '2rem', margin: '1rem 0' }}>↓</div>
+              <ListaAnnunci />
             </div>
           </div>
         </section>

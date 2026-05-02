@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth } from './hooks/useAuth';
+import useAuth from './hooks/useAuth';
 
 // Importiamo le pagine - CONTROLLA CHE I NOMI SIANO ESATTAMENTE QUESTI NELLA CARTELLA PAGES
 import Dashboard from './pages/Dashboard';
@@ -8,11 +8,11 @@ import Login from './pages/Login';
 import AnnuncioDettaglio from './pages/AnnuncioDettaglio';
 
 function App() {
-  const { isAuthenticated, loading } = useAuth();
+  const { user, loading } = useAuth();
 
   // Mostriamo la schermata di loading solo se c'e' una sessione autenticata in corso di verifica.
   // Se non autenticato, forziamo subito il Login per evitare schermate bloccate dopo il logout.
-  if (loading && isAuthenticated) {
+  if (loading && user) {
     return (
       <div style={{ 
         display: 'flex', 
@@ -32,7 +32,7 @@ function App() {
     <Router>
       <Routes>
         {/* Quando non autenticato, qualsiasi URL deve portare al Login */}
-        {!isAuthenticated ? (
+        {!user ? (
           <>
             <Route path="/login" element={<Login />} />
             <Route path="*" element={<Navigate to="/login" replace />} />

@@ -61,8 +61,8 @@ export const matchingService = {
       const { data: calciatore, error: cal_error } = await supabase
         .from('profili_calciatori')
         .select('*')
-        .eq('id', calciatore_id)
-        .single();
+        .eq('utente_id', calciatore_id)
+        .maybeSingle();
       if (cal_error) throw cal_error;
 
       let query = supabase

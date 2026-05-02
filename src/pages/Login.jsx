@@ -1,115 +1,71 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-// Questo è il percorso corretto per risalire di una cartella e trovare il client
-import { supabase } from '../supabaseClient';
+import useAuth from '../hooks/useAuth';
 
-const Login = () => {
+export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
+  const { accedi, loading, error, user } = useAuth();
   const navigate = useNavigate();
+ // Se useAuth sta ancora caricando, fermiamo tutto e mostriamo un'attesa
+ if (loading) {
+  return (
+    <div style={{ padding: '20px', textAlign: 'center' }}>
+      <p>Verifica sessione in corso...</p>
+    </div>
+  );
+}
 
-  const handleLogin = async (e) => {
+// Se l'utente è già loggato, scappiamo alla dashboard
+// (Questo sostituisce il tuo vecchio useEffect)
+if (user) {
+  navigate('/dashboard');
+  return null;
+}
+// ---------------------------------
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     
-    // Log di debug per vedere se il processo parte
-    console.log("Tentativo di accesso per:", email);
+    // 1. Chiamiamo la funzione di login
+    const result = await accedi(email, password);
 
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) throw error;
-
-      if (data.session) {
-        console.log("Login effettuato con successo!");
-        // Dopo il login, ti manda alla dashboard
-        navigate('/dashboard');
-      }
-    } catch (error) {
-      console.error("Errore durante il login:", error.message);
-      alert("Errore: " + error.message);
-    } finally {
-      setLoading(false);
+    // 2. Controllo successo (Riga 24-28 nel tuo vecchio file)
+    // Aggiungiamo il controllo su result.data per essere sicuri
+    if (result && (result.success || result.data?.user)) {
+      console.log("Login OK! Vado in Dashboard...");
+      // Usiamo window.location invece di navigate per "pulire" la memoria
+      window.location.href = '/dashboard'; 
+    } else {
+      // Se fallisce, il pulsante deve tornare cliccabile
+      console.error("Login fallito o dati errati");
     }
   };
 
   return (
-    <div style={{ 
-      display: 'flex', 
-      flexDirection: 'column', 
-      alignItems: 'center', 
-      justifyContent: 'center', 
-      minHeight: '100vh',
-      backgroundColor: '#f8f9fa' 
-    }}>
-      <div style={{ 
-        padding: '40px', 
-        backgroundColor: 'white', 
-        borderRadius: '8px', 
-        boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-        width: '100%',
-        maxWidth: '400px'
-      }}>
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#f0f2f5', fontFamily: 'sans-serif' }}>
+      <form onSubmit={handleSubmit} style={{ background: 'white', padding: '30px', borderRadius: '15px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', width: '350px' }}>
         <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-          <img src="/logo-ingaggio.png" alt="Logo Ingaggio" style={{ height: '60px' }} />
-          <h2 style={{ color: '#1a7a3c', marginTop: '10px' }}>INGAGGIO</h2>
-          <p style={{ color: '#666' }}>Marketplace Calcio Romano</p>
+          <img src="/logo-ingaggio.png" alt="Logo" style={{ width: '50px' }} />
+          <h2 style={{ color: '#1a7a3c', margin: '10px 0' }}>INGAGGIO</h2>
         </div>
 
-        <form onSubmit={handleLogin}>
-          <div style={{ marginBottom: '15px' }}>
-            <label style={{ display: 'block', marginBottom: '5px' }}>Email</label>
-            <input 
-              type="email" 
-              placeholder="Inserisci la tua email" 
-              value={email} 
-              onChange={(e) => setEmail(e.target.value)} 
-              required 
-              style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
-            />
-          </div>
-          
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '5px' }}>Password</label>
-            <input 
-              type="password" 
-              placeholder="Inserisci la password" 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
-              required 
-              style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
-            />
-          </div>
+        {error && <p style={{ color: 'red', fontSize: '0.8rem', textAlign: 'center' }}>{error}</p>}
 
-          <button 
-            type="submit" 
-            disabled={loading}
-            style={{ 
-              width: '100%', 
-              padding: '12px', 
-              backgroundColor: '#1a7a3c', 
-              color: 'white', 
-              border: 'none', 
-              borderRadius: '4px',
-              fontWeight: 'bold',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              opacity: loading ? 0.7 : 1
-            }}
-          >
-            {loading ? 'VERIFICA IN CORSO...' : 'ENTRA IN CAMPO'}
-          </button>
-        </form>
-        
-        <p style={{ textAlign: 'center', marginTop: '20px', fontSize: '14px' }}>
-          Non hai un account? <a href="https://ingaggio.com" style={{ color: '#1a7a3c', fontWeight: 'bold' }}>Registrati sulla Landing</a>
-        </p>
-      </div>
+        <div style={{ marginBottom: '15px' }}>
+          <label style={{ display: 'block', fontSize: '0.9rem' }}>Email</label>
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ccc', boxSizing: 'border-box' }} required />
+        </div>
+
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'block', fontSize: '0.9rem' }}>Password</label>
+          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ccc', boxSizing: 'border-box' }} required />
+        </div>
+
+        <button type="submit" disabled={loading} style={{ width: '100%', padding: '12px', backgroundColor: '#1a7a3c', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
+          {loading ? 'VERIFICA IN CORSO...' : 'ACCEDI'}
+        </button>
+      </form>
     </div>
   );
-};
-
-export default Login;
+}

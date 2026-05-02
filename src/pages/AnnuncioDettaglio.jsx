@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 // Assicurati di avere supabaseClient già configurato nel progetto
-import { supabase } from '../supabaseClient';
+import supabase from '../supabaseClient';
 
 const AnnuncioDettaglio = () => {
   const { id } = useParams();
@@ -17,8 +17,8 @@ const AnnuncioDettaglio = () => {
       const { data, error } = await supabase
         .from('annunci_amichevoli')
         .select('*')
-        .eq('id', id)
-        .single();
+        .eq('utente_id', id)
+        .maybeSingle();
       if (!error) setAnnuncio(data);
       setLoading(false);
     };

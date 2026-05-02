@@ -1,18 +1,38 @@
-// Importiamo lo strumento che serve per parlare con Supabase
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js'
 
-// Queste sono le "coordinate" del vostro archivio
-const supabaseUrl = 'https://ndojhzkecyzortpvjagl.supabase.co' 
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5kb2poemtlY3l6b3J0cHZqYWdsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4NDQzOTgsImV4cCI6MjA5MjQyMDM5OH0.DqipKBLtwW_5q87LcKNcwmAONZGGh5rJthizFHJMiCI'
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
 
-// Creiamo il "Postino" (il client) e gli diamo delle regole precise
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+if (!SUPABASE_URL ||!SUPABASE_ANON_KEY) {
+  console.error(
+    '[Supabase] ERRORE: Manca VITE_SUPABASE_URL o VITE_SUPABASE_ANON_KEY su Vercel. Vai in Settings > Environment Variables'
+  )
+}
+
+// ============================================================================
+// CLIENT SUPABASE - UNA SOLA ISTANZA PER TUTTA L'APP
+// ============================================================================
+
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
-    // Regola 1: Se la chiave scade, chiedine subito una nuova senza fermarti
-    autoRefreshToken: true,
-    // Regola 2: Ricorda chi è l'utente anche se chiude la pagina
+    // 1. Fai salvare la sessione nel browser. Se metti false, ad ogni F5 ti slogga
     persistSession: true,
-    // Regola 3: Usa un sistema di sicurezza moderno (PKCE) che evita i litigi (i lock)
+    
+    // 2. Usa lo storage normale del browser. Quello custom in RAM rompe il lock
+    storage: window.localStorage,
+    
+    // 3. Nome fisso del token. Se cambia ad ogni reload, crea 2 lock
+    storageKey: 'sb-ingaggio-auth-token',
+    
+    // 4. Fai rinnovare il token da solo. Se metti false, dopo 1 ora si blocca
+    autoRefreshToken: true,
+    
+    // 5. Fai leggere il login dall'URL. Serve per login con Google/Magic Link
+    detectSessionInUrl: true,
+    
+    // 6. Usa PKCE sempre. È lo standard. Il tuo "implicit" rompe su Vercel
     flowType: 'pkce'
   }
-});
+})
+
+export default supabase
