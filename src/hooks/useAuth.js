@@ -12,8 +12,7 @@ import supabase, {
   loginConTimeout,
   pulisciAuthCompletamente,
   resetAuthEmergency,
-  checkAuthHealth,
-} from '../supabaseClient';
+ } from '../supabaseClient';
  
 export default function useAuth() {
   const [user, setUser] = useState(null);
