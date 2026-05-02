@@ -100,7 +100,7 @@ export default function Dashboard() {
         </section>
 
         <section className="creation-section" style={{ marginBottom: '3rem' }}>
-        <PubblicaAnnuncio />
+        <PubblicaAnnuncio societaId={user?.id} />
         </section>
 
         <section className="dashboard-content">

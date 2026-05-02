@@ -95,8 +95,14 @@ const PubblicaAnnuncio = ({ societaId, onSuccess }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!societaId) {
+      alert("Errore: sessione scaduta. Ricarica la pagina ed effettua di nuovo il login.");
+      return;
+    }
+    
     setLoading(true);
-
+  
     try {
       const { data, error } = await supabase
         .from('annunci_amichevoli')
