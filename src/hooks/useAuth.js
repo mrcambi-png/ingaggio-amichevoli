@@ -1,12 +1,3 @@
-// ============================================================================
-// useAuth.js - VERSIONE MERGED
-// ============================================================================
-// Combina:
-// 1. loginConTimeout (protezione hang Chrome)
-// 2. RLS fix con profileFetchedRef (carica profilo UNA SOLA VOLTA)
-// 3. isMounted (previeni memory leak)
-// ============================================================================
- 
 import { useState, useEffect, useRef } from 'react';
 import supabase from '../supabaseClient';
  
@@ -144,53 +135,41 @@ export default function useAuth() {
     };
   }, []);
  
-  // ---- FUNZIONE: Login con timeout (protezione Chrome) ----
-  const accedi = async (email, password) => {
-    setLoading(true);
-    setError(null);
- 
-    try {
-      console.log('[useAuth] Inizio login per:', email);
- 
-      // usa loginConTimeout per catturare hang su Chrome
-      const { data, error: loginError, timedOut } = await loginConTimeout(
-        email,
-        password,
-        10000 // 10 secondi timeout
-      );
- 
-      // Se timeout
-      if (timedOut) {
-        console.error('[useAuth] LOGIN TIMEOUT SU CHROME');
-        setError(
-          'Login bloccato (possibile problema Chrome). Riprova o cambia browser.'
-        );
-        setLoading(false);
-        return false;
-      }
- 
-      // Se errore
-      if (loginError) {
-        console.error('[useAuth] Errore login:', loginError.message);
-        setError(loginError.message);
-        setLoading(false);
-        return false;
-      }
- 
-      // Successo - reset il flag così il profilo viene ricaricato
-      console.log('[useAuth] ✓ Login riuscito');
-      profileFetchedRef.current = false;
-      setUser(data.user);
-      setError(null);
-      setLoading(false);
-      return true;
-    } catch (err) {
-      console.error('[useAuth] Errore sconosciuto in login:', err);
-      setError('Errore sconosciuto durante il login');
+// ---- FUNZIONE: Login ----
+const accedi = async (email, password) => {
+  setLoading(true);
+  setError(null);
+  
+  try {
+    console.log('[useAuth] Inizio login per:', email);
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: email,
+      password: password,
+    });
+
+    if (error) {
+      console.error('[useAuth] Errore login:', error.message);
+      setError(error.message);
       setLoading(false);
       return false;
     }
-  };
+
+    // Successo - reset il flag così il profilo viene ricaricato
+    console.log('[useAuth] ✓ Login riuscito');
+    profileFetchedRef.current = false;
+    setUser(data.user);
+    setError(null);
+    setLoading(false);
+    return true;
+
+  } catch (err) {
+    console.error('[useAuth] Errore sconosciuto in login:', err);
+    setError('Errore sconosciuto durante il login');
+    setLoading(false);
+    return false;
+  }
+};
  
   // ---- FUNZIONE: Registrazione ----
   const registrati = async (email, password) => {
@@ -236,8 +215,9 @@ export default function useAuth() {
       // Step 1: SignOut su Supabase
       await supabase.auth.signOut();
  
-      // Step 2: Pulizia localStorage
-      await pulisciAuthCompletamente();
+      // Pulisce token Supabase e tutto il localStorage
+const projectRef = import.meta.env.VITE_SUPABASE_URL.split('//')[1].split('.')[0];
+localStorage.removeItem(`sb-${projectRef}-auth-token`);
  
       // Step 3: Cancella cookie
       if (typeof document !== 'undefined') {
