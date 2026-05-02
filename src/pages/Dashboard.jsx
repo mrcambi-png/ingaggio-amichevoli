@@ -52,58 +52,63 @@ export default function Dashboard() {
       
       <header className="main-header" style={{
   backgroundColor: 'white',
-  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+  boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+  padding: '1rem 2rem'
 }}>
-  <style>{`
-    @media (min-width: 768px) {
-      .header-wrapper {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        padding: 1rem 2rem;
-        width: 100%;
-        box-sizing: border-box;
-      }
-      .header-row-1 {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-        margin: 0 !important;
-        padding: 0 !important;
-      }
-      .header-left {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        flex-shrink: 0;
-      }
-      .logout-btn {
-        flex-shrink: 0;
-      }
-      .user-info-mini {
-        text-align: left !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        width: 100%;
-        margin-top: 1rem !important;
-      }
-    }
-  `}</style>
-  
-  <div className="header-wrapper">
-    {/* Riga 1: Logo + Esci (con spazio tra loro) */}
-    <div className="header-row-1">
-      <div className="header-left">
-        <img src="/logo-ingaggio.png" alt="Logo" style={{ width: '40px', height: 'auto' }} />
-        <h1 className="brand-name" style={{ color: '#1a7a3c', margin: 0, fontSize: '1.5rem', fontWeight: '900' }}>
-          INGAGGIO
-        </h1>
+  <div style={{
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+    boxSizing: 'border-box'
+  }}>
+    {/* SINISTRA: Logo + INGAGGIO */}
+    <div style={{ 
+      display: 'flex', 
+      alignItems: 'center', 
+      gap: '10px',
+      flexShrink: 0
+    }}>
+      <img src="/logo-ingaggio.png" alt="Logo" style={{ width: '40px', height: 'auto' }} />
+      <h1 className="brand-name" style={{ color: '#1a7a3c', margin: 0, fontSize: '1.5rem', fontWeight: '900' }}>
+        INGAGGIO
+      </h1>
+    </div>
+
+    {/* DESTRA: FC Massimina + Municipio + Esci */}
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: '20px',
+      flexShrink: 0
+    }}>
+      {/* Info Società */}
+      <div style={{ 
+        textAlign: 'right',
+        lineHeight: '1.2'
+      }}>
+        <span style={{ 
+          fontWeight: '700', 
+          color: '#1f2937',
+          fontSize: '16px',
+          display: 'block'
+        }}>
+          {nomeVisualizzato}
+        </span>
+        {profilo && (
+          <span style={{ 
+            fontSize: '14px', 
+            color: '#6b7280',
+            display: 'block'
+          }}>
+            Municipio {profilo.municipio_num}
+          </span>
+        )}
       </div>
-      
-      <button 
+
+  {/* Bottone Esci */}
+  <button 
         onClick={handleLogoutClick}
-        className="logout-btn"
         style={{
           padding: '0.5rem 1rem',
           backgroundColor: '#f1f3f5',
@@ -111,42 +116,16 @@ export default function Dashboard() {
           border: '1px solid #dee2e6',
           borderRadius: '8px',
           cursor: 'pointer',
-          fontWeight: '600'
+          fontWeight: '600',
+          whiteSpace: 'nowrap',
+          flexShrink: 0
         }}
       >
         Esci
       </button>
     </div>
   </div>
-  
-  {/* Riga 2: Nome società + Municipio (sotto, full width) */}
-  <div className="user-info-mini" style={{ 
-    textAlign: 'left',
-    lineHeight: '1.3',
-    padding: '0 2rem 1rem 2rem',
-    boxSizing: 'border-box',
-    width: '100%'
-  }}>
-    <span className="user-name-top" style={{ 
-      fontWeight: '700', 
-      color: '#1f2937',
-      fontSize: '16px',
-      display: 'block'
-    }}>
-      {nomeVisualizzato}
-    </span>
-    {profilo && (
-      <span className="user-tag" style={{ 
-        fontSize: '14px', 
-        color: '#6b7280',
-        display: 'block'
-      }}>
-        Municipio {profilo.municipio_num}
-      </span>
-    )}
-  </div>
 </header>
-
       <main className="dashboard-container" style={{ padding: '2rem' }}>
         
         <section className="dashboard-welcome" style={{ marginBottom: '2rem' }}>
